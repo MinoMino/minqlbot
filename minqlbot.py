@@ -698,7 +698,7 @@ setattr(minqlbot, "EVENT_HANDLERS", event_handlers)
 #                              PARSER    
 # ====================================================================
 
-re_chat = re.compile(r'"(?P<id>..) (?:(?P<clan>[^ \[\]]+?) )?(?P<name>[^\x19]+?)..\x19: ..(?P<msg>.+)"')
+re_chat = re.compile(r'"(?P<id>..) (?:(?P<clan>[^ \x19]+?) )?(?P<name>[^\x19]+?)..\x19: ..(?P<msg>.+)"')
 re_tchat = re.compile(r'"(?P<id>..) \x19\((?:(?P<clan>[^ ]+?) )?(?P<name>.+?)..\x19\)(?: \(.+?\))?\x19: ..(?P<msg>.+)"')
 re_tell = re.compile(r'"(?P<id>..) \x19\[(?:(?P<clan>[^ ]+?) )?(?P<name>.+?)\^7\x19\](?: \(.+?\))?\x19: ..(?P<msg>.+)"')
 re_connect = re.compile(r'print "(?P<name>.+) connected')
