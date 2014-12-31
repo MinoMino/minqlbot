@@ -1,7 +1,7 @@
 minqlbot
 ========
 
-A administration bot for Quake Live, extensible with plugins.
+An administration bot for Quake Live, extensible with plugins.
 
 This is the source of the DLL. When you compile this for release, it'll add the base of the Python
 files as a resource and load them from there. When compiled for debug, it'll look for them in
