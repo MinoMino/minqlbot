@@ -9,7 +9,7 @@ if "dirty" in version:
 with open("common.h", "r+") as f:
     lines = f.readlines()
     f.seek(0)
-    fo.truncate()
+    f.truncate()
     for line in lines:
         if line.startswith("#define MINQLBOT_VERSION"):
             f.write('#define MINQLBOT_VERSION "{}"\n'.format(version))
