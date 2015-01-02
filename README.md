@@ -9,9 +9,6 @@ files as a resource and load them from there. When compiled for debug, it'll loo
 
 The plugins for the bot can be found on a separate repository, https://github.com/MinoMino/minqlbot-plugins
 
-http://minomino.org/quake/minqlbot_dependencies.zip
-
-
 Installation
 ============
 
