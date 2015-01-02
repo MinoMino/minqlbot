@@ -666,6 +666,14 @@ class Plugin():
     def change_name(self, name):
         self.send_command("name {}".format(name))
 
+    def teamsize(self, size):
+        if not self.is_vote_active():
+            self.callvote("teamsize {}".format(size))
+            self.vote_yes()
+            return True
+        else:
+            return False
+
     def kick(self, player):
         player = self.player(player) #self.player() can handle str, Player and int
         if not self.is_vote_active():
