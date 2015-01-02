@@ -342,6 +342,7 @@ void MainLoop(HANDLE main_loop_stop_event, HANDLE queue_mutex, HANDLE restart_py
       //python::Finalize();
       python::Initialize();
       ResetEvent(restart_python_event);
+      last_connection_status = CONN_DISCONNECTED; // Make sure bot_connect event triggers after a restart.
     }
 
     loop_count = 0;
@@ -647,9 +648,7 @@ char * HReadBigString(void * msg) {
 }
 
 void HAddReliableCommand(const char * cmd) {
-#ifdef _DEBUG
   DOUT << "=> " << cmd << std::endl;
-#endif
   AddQueuedCommand(cmd);
 }
 
