@@ -90,6 +90,10 @@
       </IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>V:\Programming\Libraries\C++\boost_1_56_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>python version.py</Command>
+      <Message>Set version.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,6 +114,12 @@
       <AdditionalDependencies>boost_python3-vc120-mt-1_56.lib;python34.lib;MinHook.x86.lib;%(AdditionalDependencies);Psapi.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>V:\Programming\Libraries\C++\boost_1_56_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>python version.py</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Set version.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
