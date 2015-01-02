@@ -28,6 +28,6 @@ along with minqlbot. If not, see <http://www.gnu.org/licenses/>.
 // Windows Header Files:
 #include <windows.h>
 
-#define MINQLBOT_VERSION "0.1.0"
+#define MINQLBOT_VERSION "NOT_SET"
 
 DLLEXPORT const char * GetMinqlbotVersion();

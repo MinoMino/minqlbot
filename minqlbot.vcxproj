@@ -115,11 +115,17 @@
       <AdditionalLibraryDirectories>V:\Programming\Libraries\C++\boost_1_56_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>python version.py</Command>
+      <Command>python version.py -set</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Set version.</Message>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>python version.py -unset</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Unset version number so Git doesn't think it's a new version.</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
