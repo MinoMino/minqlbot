@@ -28,7 +28,7 @@ DebugView should now start showing you lines with stuff prefixed with "MINQLBOT:
 ![dbgview2]
 
 
-If you had no issues in the previous steps, you're good to go. You can connect to a server, and as long as you have owner or referee status, you're good. Look at [my site](http://minomino.org/quake/) for a quick intro to some of the commands (it's kinda outdated, but I'll update it eventually). If you want to make your buddies able to control the bot, use !setperm. When you're done, make sure you type "\bot exit" in your console before closing Quake Live to ensure the bot exits safely.
+If you had no issues in the previous steps, you're good to go. You can connect to a server, and as long as you have owner or referee status, you're good. Look at [my site](http://minomino.org/quake/) for a quick intro to some of the commands (it's kinda outdated, but I'll update it eventually). If you want to make your buddies able to control the bot, use !setperm. Until I write some proper documentation on commands, you can also look at the various .py files in the plugins folder. All the commands are defined fairly early in the file. When you're done, make sure you type "\bot exit" in your console before closing Quake Live to ensure the bot exits safely.
 
 
 Known Issues
