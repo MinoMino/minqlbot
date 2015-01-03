@@ -62,6 +62,8 @@ cache_lock = threading.Lock()
 re_cs = re.compile(r'cs (?P<index>[^ ]+) "(?P<cvars>.*)"$')
 # Regex to get the current vote and its arguments.
 re_vote = re.compile('(?P<vote>.+) "*(?P<args>.*?)"*')
+# Regex to catch colors.
+re_color_tag = re.compile(r"\^.")
 
 def handle_message(msg):
     msg = msg.replace("\n", "")
@@ -192,6 +194,29 @@ class AbstractChannel:
     def reply(self):
         raise NotImplementedError()
 
+    def split_long_msg(self, msg, limit=100, delimiter=" "):
+        """Split a message into several pieces for channels with limtations."""
+        if len(msg) < limit:
+            return [msg]
+        out = []
+        index = limit
+        for i in reversed(range(limit)):
+            if msg[i:i + len(delimiter)] == delimiter:
+                index = i
+                out.append(msg[0:index])
+                # Keep going, but skip the delimiter.
+                rest = msg[index + len(delimiter):]
+                if rest:
+                    out.extend(self.split_long_msg(rest, limit, delimiter))
+                return out
+
+        out.append(msg[0:index])
+        # Keep going.
+        rest = msg[index:]
+        if rest:
+            out.extend(self.split_long_msg(rest, limit, delimiter))
+        return out
+
 # Export the abstract.
 setattr(minqlbot, "AbstractChannel", AbstractChannel)
 
@@ -201,34 +226,42 @@ class ChatChannel(AbstractChannel):
     """
     def __init__(self):
         super().__init__("chat")
+        self.command = "say"
+        
 
     def reply(self, msg):
-        minqlbot.send_command('say "{}"'.format(msg))
+        last_color = ""
+        for s in self.split_long_msg(msg, limit=100):
+            minqlbot.send_command('{} "{}{}"'.format(self.command, last_color, s))
+            find = re_color_tag.findall(s)
+            if find:
+                last_color = find[-1]
 
 # Static chat channel.
 chat_channel = ChatChannel()
 setattr(minqlbot, "CHAT_CHANNEL", chat_channel)
 
-class TeamChatChannel(AbstractChannel):
+class TeamChatChannel(ChatChannel):
     """A channel for in-game team chat.
 
     """
     def __init__(self):
-        super().__init__("team_chat")
+        super(ChatChannel, self).__init__("team_chat")
+        self.command = "say_team"
 
     def reply(self, msg):
-        minqlbot.send_command('say_team "{}"'.format(msg))
+        super().reply(msg)
 
 # Static team chat channel.
 team_chat_channel = TeamChatChannel()
 setattr(minqlbot, "TEAM_CHAT_CHANNEL", team_chat_channel)
 
-class TellChannel(AbstractChannel):
+class TellChannel(ChatChannel):
     """A channel for in-game tells (private messages).
 
     """
     def __init__(self, player):
-        super().__init__("tell")
+        super(ChatChannel, self).__init__("tell")
         if not isinstance(player, minqlbot.Player):
             raise TypeError("'player' must be an instance of minqlbot.Player or a subclass of it.")
 
@@ -242,7 +275,8 @@ class TellChannel(AbstractChannel):
         return "{} {}".format(self.name, self.player.clean_name)
 
     def reply(self, msg):
-        minqlbot.send_command('tell {} "{}"'.format(self.player.id, msg))
+        self.command = 'tell {}'.format(self.player.id)
+        super().reply(msg)
 
 class ConsoleChannel(AbstractChannel):
     """A channel for the console.
@@ -944,6 +978,7 @@ def load_config():
                                 "CommandPrefix" : "!"
                             }
 
+        sys.path.append(os.path.dirname(config["Core"]["PluginsFolder"]))
         setattr(minqlbot, "NAME", config["Core"]["Nickname"].strip())
         setattr(minqlbot, "COMMAND_PREFIX", config["Core"]["CommandPrefix"].strip())
     else:
@@ -1060,6 +1095,5 @@ if __name__ == "__main__":
     sys.path.append(os.getcwd() + "\\python")
     load_config()
     load_preset_plugins()
-    handle_connection_status(minqlbot.connection_status())
 
 
