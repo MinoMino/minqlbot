@@ -483,13 +483,14 @@ class Plugin():
         """Send a message to the chat, private message, or the console.
         
         """
-        if chat_channel == "chat":
-            self.send_command('say "{}"'.format(msg))
-        elif chat_channel == "team_chat":
-            self.send_command('say_team "{}"'.format(msg))
-        elif chat_channel == "console":
-            # Append newline since that's how chat behaves.
-            self.console(msg + '\n')
+        if isinstance(chat_channel, minqlbot.AbstractChannel):
+            chat_channel.reply(msg)
+        elif chat_channel == minqlbot.CHAT_CHANNEL:
+            minqlbot.CHAT_CHANNEL.reply(msg)
+        elif chat_channel == minqlbot.TEAM_CHAT_CHANNEL:
+            minqlbot.TEAM_CHAT_CHANNEL.reply(msg)
+        elif chat_channel == minqlbot.CONSOLE_CHANNEL:
+            minqlbot.CONSOLE_CHANNEL.reply(msg)
     
     def console(self, text):
         """Send text to be printed by the console.
