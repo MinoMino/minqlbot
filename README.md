@@ -39,7 +39,7 @@ I have with this one are quite minor:
 * Py_Finalize() is a pain in the ass and leads to crashes and weird bugs, so I don't use it until you unload the module.
 I've added a restart command to the console, but it just reloads the script from the hard drive and runs it in
 the same namespace after calling the cleanup functions. Can probably improve that further, though.
-* There's a good change that after disconnecting from a server, instead of the server recognizing that you've disconnected, you'll end up timing out instead. The same reason will cause "\reconnect" in the console to get stuck in the loading screen. This is likely related to the outgoing message queue system I use on the bot. I'll look into it, but it's such a minor issue that it might take a while until this is fixed.
+* There's a good chance that after disconnecting from a server, instead of the server recognizing that you've disconnected, you'll end up timing out instead. The same reason will cause "\reconnect" in the console to get stuck in the loading screen. This is likely related to the outgoing message queue system I use on the bot. I'll look into it, but it's such a minor issue that it might take a while until this is fixed.
 
 
 Additional Notes
