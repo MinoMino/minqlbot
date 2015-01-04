@@ -1060,8 +1060,13 @@ def parse_variables(varstr):
     """
     res = {}
     vars = varstr.lstrip("\\").split("\\")
-    for i in range(0, len(vars), 2):
-        res[vars[i]] = vars[i + 1]
+    try:
+        for i in range(0, len(vars), 2):
+            res[vars[i]] = vars[i + 1]
+    except:
+        debug("ERROR: parse_variables uneven number of variables.")
+        debug(varstr)
+        return res # Return incomplete dict.
     
     return res
 
