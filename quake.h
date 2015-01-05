@@ -60,6 +60,7 @@ typedef void (__cdecl * ParseServerMessage)(void * msg);
 typedef int (__cdecl * ParseCommandString)(void * msg);
 typedef int (__cdecl * ParseGamestate)(void * msg);
 typedef char * (__cdecl * ReadBigString)(void * msg);
+typedef int (__cdecl * ReadShort)(void * msg);
 typedef void (__cdecl * AddReliableCommand)(const char * cmd);
 typedef void (__cdecl * AddCommand)(const char * cmd, void * func);
 typedef void (__cdecl * RemoveCommand)(const char * cmd);
@@ -99,7 +100,7 @@ void __cdecl HandleUnknown(const std::vector<std::string> &args);
 
 
 void HandleCommandString(size_t index);
-void HandleGamestateString(const char * configstring);
+void HandleGamestate(int index, const char * configstring);
 void HandleConnectionStatus(UINT32 status);
 
 // Function replacements.
@@ -107,7 +108,9 @@ void __cdecl HParseServerMessage(void * msg);
 int __cdecl HParseCommandString(void * msg);
 void __cdecl HParseGamestate(void * msg);
 char * __cdecl HReadBigString(void * msg);
+int __cdecl HReadShort(void * msg);
 void __cdecl HAddReliableCommand(const char * cmd);
+void __cdecl HConsolePrint(const char * msg);
 
 // Helpers
 void AddQueuedCommand(const std::string &cmd);
