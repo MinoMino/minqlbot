@@ -28,6 +28,7 @@ import re
 import traceback
 import importlib
 import threading
+import minqlbot
 
 # ====================================================================
 #                             CONSTANTS
@@ -55,9 +56,6 @@ setattr(minqlbot, "RET_USAGE", 2)
 #       These are all called by the C++ code, not within Python.  
 # ====================================================================
 
-# Configstring cache. See get_configstring() for details.
-cs_cache = {}
-cache_lock = threading.Lock()
 # Regex to catch "cs" commands.
 re_cs = re.compile(r'cs (?P<index>[^ ]+) "(?P<cvars>.*)"$')
 # Regex to get the current vote and its arguments.
@@ -71,25 +69,31 @@ def handle_message(msg):
     # Cache configstrings.
     res = re_cs.match(msg)
     if res:
-        global cs_cache
         index = int(res.group("index"))
         cvars = res.group("cvars")
-        with cache_lock:
-            cs_cache[index] = cvars
+        with minqlbot._CS_CACHE_LOCK:
+            minqlbot._CS_CACHE[index] = cvars
 
     parse(msg)
     event_handlers["raw"].trigger(msg)
     
-def handle_gamestate(gstate):
-    pass
+def handle_gamestate(index, configstring):
+    configstring = configstring.replace("\n", "")
+    with minqlbot._CS_CACHE_LOCK:  # Cache the gamestate.
+        minqlbot._CS_CACHE[index] = configstring
+    event_handlers["gamestate"].trigger(index, configstring)
+    
+    if index == 3:
+        event_handlers["map"].trigger(configstring)
     
 connected = False
 
 def handle_connection_status(status):
     global connected
-    if status != 8 and connected:
+    if status < 6 and connected:
         connected = False
-        cs_cache.clear()
+        with minqlbot._CS_CACHE_LOCK:
+            minqlbot._CS_CACHE.clear()
         debug("Reinitializing struct pointers...")
         minqlbot.reinitialize()
     if status == 0: # Game closed
@@ -105,17 +109,19 @@ def handle_connection_status(status):
     elif status == 6: # Receiving gamestate
         pass
     elif status == 7: # Awaiting snapshot
-        cs_cache.clear()
+        with minqlbot._CS_CACHE_LOCK:
+            minqlbot._CS_CACHE.clear()
     elif status == 8: # Connected
-        connected = True
-        event_handlers["bot_connect"].trigger()
+        if not connected:
+            connected = True
+            event_handlers["bot_connect"].trigger()
     else:
         debug("Unknown connection status: {}".format(status))
 
     setattr(minqlbot, "CONNECTION", status)
     
 def handle_console_print(cmd):
-    event_handlers["console"].trigger(cmd)
+    event_handlers["console"].trigger(cmd.rstrip("\n"))
 
 def handle_console_command(cmd):
     commands.handle_input(minqlbot.DummyPlayer(minqlbot.NAME), cmd, minqlbot.CONSOLE_CHANNEL, prefix=False)
@@ -415,7 +421,7 @@ class CommandManager:
                         return
                     elif res == minqlbot.RET_USAGE:
                         channel.reply("^7Usage: ^6{}{} {}".format(minqlbot.COMMAND_PREFIX, name, cmd.usage))
-                    elif res != None and res != RET_NONE:
+                    elif res != None and res != minqlbot.RET_NONE:
                         debug("[Warning] Command '{}' with handler '{}' returned an unknown return value: {}"
                             .format(cmd.name, cmd.handler.__name__, res))
 
@@ -598,9 +604,9 @@ class TeamSwitchEventHandler(EventHandler):
     def trigger(self, player, old_team, new_team):
         super().trigger(player, old_team, new_team)
 
-class MapChangeEventHandler(EventHandler):
+class MapEventHandler(EventHandler):
     def __init__(self):
-        super().__init__("map_change")
+        super().__init__("map")
     
     def trigger(self, map):
         super().trigger(map)
@@ -662,7 +668,7 @@ class UnloadEventHandler(EventHandler):
                     retval = handler()
                     if retval == minqlbot.RET_NONE or retval == None:
                         continue
-                    elif retvall == minqlbot.RET_STOP:
+                    elif retval == minqlbot.RET_STOP:
                         return
                     else:
                         debug("{}: {}@{} gave unexpected return value '{}'"
@@ -674,6 +680,20 @@ class RawEventHandler(EventHandler):
     
     def trigger(self, raw):
         super().trigger(raw)
+
+class GamestateEventHandler(EventHandler):
+    def __init__(self):
+        super().__init__("gamestate")
+    
+    def trigger(self, index, configstring):
+        super().trigger(index, configstring)
+
+class ScoresEventHandler(EventHandler):
+    def __init__(self):
+        super().__init__("scores")
+    
+    def trigger(self, scores, mode):
+        super().trigger(scores, mode)
 
 
 class EventHandlerManager:
@@ -719,11 +739,13 @@ event_handlers.add_handler("game_end",          GameEndEventHandler())
 event_handlers.add_handler("round_start",       RoundStartEventHandler())
 event_handlers.add_handler("round_end",         RoundEndEventHandler())
 event_handlers.add_handler("team_switch",       TeamSwitchEventHandler())
-event_handlers.add_handler("map_change",        MapChangeEventHandler())
+event_handlers.add_handler("map",               MapEventHandler())
 event_handlers.add_handler("vote_called",       VoteCalledEventHandler())
 event_handlers.add_handler("vote_ended",        VoteEndedEventHandler())
 event_handlers.add_handler("unload",            UnloadEventHandler())
 event_handlers.add_handler("raw",               RawEventHandler())
+event_handlers.add_handler("gamestate",         GamestateEventHandler())
+event_handlers.add_handler("scores",             ScoresEventHandler())
 
 # Export event handler dictionary.
 setattr(minqlbot, "EVENT_HANDLERS", event_handlers)
@@ -749,20 +771,25 @@ re_vote_called_ex = re.compile(r'cs 9 "(?P<vote>.+) "*(?P<args>.*?)"*"')
 re_voted = re.compile(r'cs (?P<code>10|11) "(?P<count>.*)"')
 re_vote_ended = re.compile(r'print "Vote (?P<result>passed|failed).')
 re_player_change = re.compile(r'cs 5(?P<id>[2-5][0-9]) "(?P<cvars>.*)"')
+re_scores_ca = re.compile(r'scores_ca (?P<total_players>.+?) (?P<red_score>.+?) (?P<blue_score>.+?) (?P<scores>.+)')
+re_castats = re.compile(r'castats (?P<scores>.+)')
 
 # bcs0 is a special case, as it's a configstring that's too big, so it's split into several parts.
 # bcs0 indicates we start an incomplete configstring, bcs1 means we add it to the
 # previous bcs0 or bcs1 string, bcs2 means the complete string has been sent.
 # In our case, we'll wait until bcs2 has arrived and resend the whole cs to the handler as a normal cs.
-re_bcs = re.compile(r'bcs(?P<channel>.) (?P<index>.*) "(?P<cvars>.*)"')
+re_bcs = re.compile(r'bcs(?P<mode>.) (?P<index>.*) "(?P<cvars>.*)"')
 bcs_buffer = {} # Dict because we could possibly receive several bcs' simultaneously.
 
-# ChatChannel and TeamChatChannel are both channels that hold no unique information,
-# so we make to instances and pass those every time a chat or team chat message
-# comes in. Tells are unique, so we'll create one for every tell.
+# Post-game stats are sent as separate commands, as opposed to regular scores, so we use a buffer
+# and trigger the event when we receive them all.
+castats_buffer = []
+# The order of the players in castats depends on the scores_ca sent right before them, so we
+# keep track of the order.
+castats_order = []
 
 def parse(cmdstr):
-    res = None
+    """Parses server commands or gamestates"""
     cmd = cmdstr.split(" ", 1)
     if cmd[0] == "chat":
         rm = re_chat.match(cmd[1])
@@ -797,7 +824,7 @@ def parse(cmdstr):
     # big_configstring (bcs)
     res = re_bcs.match(cmdstr)
     if res:
-        channel = int(res.group("channel"))
+        channel = int(res.group("mode"))
         index = int(res.group("index"))
         cvars = res.group("cvars")
         if channel == 0:
@@ -955,6 +982,34 @@ def parse(cmdstr):
             event_handlers["player_disconnect"].trigger(minqlbot.Player(cid, cached=False))
             
         return
+
+    # scores_ca
+    res = re_scores_ca.match(cmdstr)
+    if res:
+        global castats_order
+        total_players = int(res.group("total_players"))
+        raw_scores = [int(i) for i in res.group("scores").split()]
+        scores = []
+        castats_order.clear()
+        for i in range(total_players):
+            castats_order.append(raw_scores[i*17])
+            scores.append(minqlbot.CaScores(raw_scores[i*17:i*17+17]))
+        event_handlers["scores"].trigger(scores, "ca_scores")
+
+    # castats
+    res = re_castats.match(cmdstr)
+    if res:
+        global castats_buffer, castats_order
+        raw_scores = [int(i) for i in res.group("scores").split()]
+        cid = castats_order[0]
+        del castats_order[0]
+        castats_buffer.append(minqlbot.CaEndScores(cid, raw_scores))
+
+        if not len(castats_order): # Are we ready to trigger?
+            tmp = castats_buffer
+            castats_buffer = []
+            event_handlers["scores"].trigger(tmp, "ca_end_scores")
+
 
 # ====================================================================
 #                       CONFIG AND PLUGIN LOADING
