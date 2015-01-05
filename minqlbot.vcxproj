@@ -91,11 +91,11 @@
       <AdditionalLibraryDirectories>V:\Programming\Libraries\C++\boost_1_56_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>python version.py -set</Command>
+      <Command>python version.py -set_debug</Command>
       <Message>Set version.</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>python version.py -unset</Command>
+      <Command>python version.py -unset_debug</Command>
       <Message>Unset version number so Git doesn't think it's a new version.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
