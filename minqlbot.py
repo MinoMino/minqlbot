@@ -27,7 +27,6 @@ import configparser
 import re
 import traceback
 import importlib
-import threading
 import minqlbot
 
 # ====================================================================
