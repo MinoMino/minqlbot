@@ -344,7 +344,7 @@ class Scores():
 class CaScores(Scores):
     def __init__(self, scores):
         self.player = Player(scores[0])
-        #self.team = scores[1]
+        self.team = minqlbot.TEAMS[scores[1]]
         self.premium = bool(scores[2])
         self.score = scores[3]
         self.ping = scores[4]
