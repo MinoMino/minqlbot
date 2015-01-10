@@ -860,11 +860,19 @@ class Plugin():
     def unpause(self):
         self.send_command('unpause')
         
-    def lock(self, team):
-        self.send_command('lock {}'.format(team))
+    def lock(self, team=None):
+        # You can lock both teams when no argument is passed.
+        if not team:
+            self.send_command('lock')
+        else:
+            self.send_command('lock {}'.format(team))
     
-    def unlock(self, team):
-        self.send_command('unlock {}'.format(team))
+    def unlock(self, team=None):
+        # You can unlock both teams when no argument is passed.
+        if not team:
+            self.send_command('unlock')
+        else:
+            self.send_command('unlock {}'.format(team))
     
     def stopserver(self):
         self.send_command('stopserver')
