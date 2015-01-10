@@ -180,6 +180,10 @@ class Player():
     def model(self):
         return self["model"]
 
+    @property
+    def country(self):
+        return self["c"]
+
 class DummyPlayer(Player):
     def __init__(self, name):
         self.cs = (
