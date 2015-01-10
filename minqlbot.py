@@ -27,6 +27,7 @@ import configparser
 import re
 import traceback
 import importlib
+import threading
 import minqlbot
 
 # ====================================================================
@@ -377,7 +378,7 @@ class CommandManager:
 
     def remove_command(self, command):
         if not self.is_registered(command):
-            raise CommandError("Attempted to remove a commands that was never added.")
+            raise CommandError("Attempted to remove a command that was never added.")
         else:
             for priority_level in self.__commands:
                 for cmd in priority_level:
