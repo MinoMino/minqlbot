@@ -692,9 +692,15 @@ class ScoresEventHandler(EventHandler):
     def __init__(self):
         super().__init__("scores")
     
-    def trigger(self, scores, mode):
-        super().trigger(scores, mode)
+    def trigger(self, scores):
+        super().trigger(scores)
 
+class StatsEventHandler(EventHandler):
+    def __init__(self):
+        super().__init__("stats")
+    
+    def trigger(self, stats):
+        super().trigger(stats)
 
 class EventHandlerManager:
     """Holds all the event managers and provides a way to access them.
@@ -745,7 +751,8 @@ event_handlers.add_handler("vote_ended",        VoteEndedEventHandler())
 event_handlers.add_handler("unload",            UnloadEventHandler())
 event_handlers.add_handler("raw",               RawEventHandler())
 event_handlers.add_handler("gamestate",         GamestateEventHandler())
-event_handlers.add_handler("scores",             ScoresEventHandler())
+event_handlers.add_handler("scores",            ScoresEventHandler())
+event_handlers.add_handler("stats",             StatsEventHandler())
 
 # Export event handler dictionary.
 setattr(minqlbot, "EVENT_HANDLERS", event_handlers)
@@ -994,7 +1001,7 @@ def parse(cmdstr):
         for i in range(total_players):
             castats_order.append(raw_scores[i*17])
             scores.append(minqlbot.CaScores(raw_scores[i*17:i*17+17]))
-        event_handlers["scores"].trigger(scores, "ca_scores")
+        event_handlers["scores"].trigger(scores)
 
     # castats
     res = re_castats.match(cmdstr)
@@ -1008,7 +1015,7 @@ def parse(cmdstr):
         if not len(castats_order): # Are we ready to trigger?
             tmp = castats_buffer
             castats_buffer = []
-            event_handlers["scores"].trigger(tmp, "ca_end_scores")
+            event_handlers["stats"].trigger(tmp)
 
 
 # ====================================================================
