@@ -556,9 +556,9 @@ class ChatEventHandler(EventHandler):
     def __init__(self):
         super().__init__("chat")
     
-    def trigger(self, player, msg, chat_type):
-        super().trigger(player, msg, chat_type)
-        commands.handle_input(player, msg, chat_type)
+    def trigger(self, player, msg, channel):
+        super().trigger(player, msg, channel)
+        commands.handle_input(player, msg, channel)
 
 class CountdownEventHandler(EventHandler):
     def __init__(self):
