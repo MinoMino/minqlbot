@@ -869,6 +869,10 @@ def parse(cmdstr):
         if cvars:
             round_number = int(cvars["round"])
             if round_number and "time" in cvars:
+                if round_number == 1:  # This is the case when the game starts.
+                    event_handlers["round_start"].trigger(round_number)
+                    return
+
                 event_handlers["round_countdown"].trigger(round_number)
                 return
             elif round_number:
@@ -884,6 +888,14 @@ def parse(cmdstr):
             score = (int(res.group("score")), int(minqlbot.get_configstring(7, cached=False)))
         elif winner == minqlbot.TEAMS[2]:
             score = (int(minqlbot.get_configstring(6, cached=False)), int(res.group("score")))
+
+        # If the game was forfeited, it'll act as if the round ended, but with -999 score
+        # followed by the actual score. We simply skip the -999 one, since game_ended is
+        # triggered later anyway.
+        if score[0] == -999 or score[1] == -999:
+            return
+        
+        # Otherwise, regular round end.
         event_handlers["round_end"].trigger(score, winner)
         return
     
