@@ -943,8 +943,15 @@ def parse(cmdstr):
     # vote_called
     res = re_vote_called.match(cmdstr)
     if res:
+        name = res.group("name")
+        # Remove clan tag if any.
+        n_split = name.split()
+        if len(n_split) > 1:
+            name = n_split[1]
+        
+        player = get_player(name)
+        
         # We don't know yet what kind of vote it is, so no event trigger yet.
-        player = get_player(res.group("name"))
         event_handlers["vote_called"].caller(player)
         return
     
