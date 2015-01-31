@@ -338,6 +338,10 @@ class Game():
     def capturelimit(self):
         return int(self["capturelimit"])
 
+    @property
+    def teamsize(self):
+        return self["teamsize"]
+
 class Scores():
     pass
 
