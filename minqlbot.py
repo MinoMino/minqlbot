@@ -27,7 +27,6 @@ import configparser
 import re
 import traceback
 import importlib
-import threading
 import minqlbot
 
 # ====================================================================
@@ -771,7 +770,7 @@ re_round_end = re.compile(r'cs (?P<team>6|7) "(?P<score>.+)"')
 re_game_change = re.compile(r'cs 0 "(?P<cvars>.*)"')
 re_game_end = re.compile(r'cs 14 "(?P<value>.+)"')
 re_kick = re.compile(r'print "(?P<name>.+) was kicked')
-re_ragequit = re.compile(r'print "(?P<name>.+) ^1rage^7quits')
+re_ragequit = re.compile(r'print "(?P<name>.+) \^1rage\^7quits')
 re_timeout = re.compile(r'print "(?P<name>.+) timed out')
 re_vote_called = re.compile(r'print "(?P<name>.+) called a vote.')
 re_vote_called_ex = re.compile(r'cs 9 "(?P<vote>.+) "*(?P<args>.*?)"*"')
