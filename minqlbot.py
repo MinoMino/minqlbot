@@ -560,9 +560,9 @@ class ChatEventHandler(EventHandler):
         super().trigger(player, msg, channel)
         commands.handle_input(player, msg, channel)
 
-class CountdownEventHandler(EventHandler):
+class GameCountdownEventHandler(EventHandler):
     def __init__(self):
-        super().__init__("countdown")
+        super().__init__("game_countdown")
     
     def trigger(self):
         super().trigger()
@@ -578,9 +578,15 @@ class GameEndEventHandler(EventHandler):
     def __init__(self):
         super().__init__("game_end")
     
-    # TODO: Send score and misc info as arguments.
     def trigger(self, game, score, winner):
         super().trigger(game, score, winner)
+
+class RoundCountdownEventHandler(EventHandler):
+    def __init__(self):
+        super().__init__("round_countdown")
+    
+    def trigger(self, round):
+        super().trigger(round)
 
 class RoundStartEventHandler(EventHandler):
     def __init__(self):
@@ -738,9 +744,10 @@ event_handlers.add_handler("bot_disconnect",    BotDisonnectEventHandler())
 event_handlers.add_handler("player_connect",    PlayerConnectEventHandler())
 event_handlers.add_handler("player_disconnect", PlayerDisonnectEventHandler())
 event_handlers.add_handler("chat",              ChatEventHandler())
-event_handlers.add_handler("countdown",         CountdownEventHandler())
+event_handlers.add_handler("game_countdown",    GameCountdownEventHandler())
 event_handlers.add_handler("game_start",        GameStartEventHandler())
 event_handlers.add_handler("game_end",          GameEndEventHandler())
+event_handlers.add_handler("round_countdown",   RoundCountdownEventHandler())
 event_handlers.add_handler("round_start",       RoundStartEventHandler())
 event_handlers.add_handler("round_end",         RoundEndEventHandler())
 event_handlers.add_handler("team_switch",       TeamSwitchEventHandler())
@@ -861,7 +868,10 @@ def parse(cmdstr):
         cvars = parse_variables(res.group("cvars"))
         if cvars:
             round_number = int(cvars["round"])
-            if round_number != 0:
+            if round_number and "time" in cvars:
+                event_handlers["round_countdown"].trigger(round_number)
+                return
+            elif round_number:
                 event_handlers["round_start"].trigger(round_number)
                 return
     
@@ -894,7 +904,7 @@ def parse(cmdstr):
                     event_handlers["vote_ended"].cancel() # Cancel current vote if any.
                     event_handlers["game_start"].trigger(minqlbot.Game())
                 elif old_state == "PRE_GAME" and new_state == "COUNT_DOWN":
-                    event_handlers["countdown"].trigger()
+                    event_handlers["game_countdown"].trigger()
                 elif old_state == "COUNT_DOWN" and new_state == "IN_PROGRESS":
                     event_handlers["vote_ended"].cancel() # Cancel current vote if any.
                     event_handlers["game_start"].trigger(minqlbot.Game())
