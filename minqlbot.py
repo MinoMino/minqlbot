@@ -1165,6 +1165,11 @@ def get_player(name):
 # ====================================================================
     
 if __name__ == "__main__":
+    # During reloading it might try to print to stderr if an error occurs, which raises
+    # an exception since it does not exists. We create a dummy stderr to avoid that.
+    from io import StringIO
+    sys.stderr = StringIO()
+
     sys.path.append(os.getcwd() + "\\python")
     load_config()
     load_preset_plugins()
