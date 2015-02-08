@@ -13,7 +13,7 @@ Installation
 ============
 
 1. You will need [Python 3.4 (x86)](https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi) and [Visual C++ 2013 Redistributable Package (x86)](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Note that regardless of whether you're on a 64-bit or 32-bit OS, you'll need the 32-bit versions of these. Check this box when prompted by Microsoft: ![redist_checkbox]
-2. Download the necessary [DLLs](http://minomino.org/quake/minqlbot_dependencies.zip) (developers might want to get the [debug build](#Contribute)).
+2. Download the necessary [DLLs](http://minomino.org/quake/minqlbot_dependencies.zip) (developers might want to get the [debug build](#contribute)).
 3. Find quakelive.exe and extract the above files in the same folder, then make these files __read-only__. Make a folder called "python" in the same folder. It should look more or less like this: ![qlexe_path]
 4. Go to the [plugins repository](https://github.com/MinoMino/minqlbot-plugins) and click the "Download ZIP" button on the right. Open the archive and extract the __contents__ of the "minqlbot-plugins-master" folder into the "python" folder we made earlier. I repeat, not the contents of the archive, but the contents of the folder __inside__ the archive.
 5. Open config.cfg in a text editor and make sure you set the `Nickname` field to whatever your account name on Quake Live is. You can go ahead and edit some other options as well, but it might be better to wait until you got the bot running correctly first, just in case you mess something up. You might want to either remove the `irc` plugin, or make sure you've got an admin channel with a password set up first, though. People could potentially abuse it if you don't.
