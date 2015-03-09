@@ -14,6 +14,8 @@ Need help with the bot? Drop by [#minqlbot on Quakenet](http://webchat.quakenet.
 Installation
 ============
 
+NOTE: The following instructions are for the standalone client. If you're using Steam, the QL executable is called "quakelive_steam.exe" and its installation path is not AppData, but wherever you've set Steam to install games. Other than that, it should work just fine with the Steam version as well.
+
 1. You will need [Python 3.4 (x86)](https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi) and [Visual C++ 2013 Redistributable Package (x86)](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Note that regardless of whether you're on a 64-bit or 32-bit OS, you'll need the 32-bit versions of these. Check this box when prompted by Microsoft: ![redist_checkbox]
 2. Download the necessary [DLLs](http://minomino.org/quake/minqlbot_dependencies.zip) (developers might want to get the [debug build](#contribute)).
 3. Find quakelive.exe and extract the above files in the same folder, then make these files __read-only__. Make a folder called "python" in the same folder. It should look more or less like this: ![qlexe_path]
