@@ -701,7 +701,7 @@ class Plugin():
 
     def changemap(self, map_):
         if not self.is_vote_active():
-            self.callvote("callvote map {}".format(map_))
+            self.callvote("map {}".format(map_))
             self.vote_yes()
             return True
         else:
