@@ -17,13 +17,13 @@ Installation
 NOTE: The following instructions are for the standalone client. If you're using Steam, the QL executable is called "quakelive_steam.exe" and its installation path is not AppData, but wherever you've set Steam to install games. Other than that, it should work just fine with the Steam version as well.
 
 1. You will need [Python 3.4 (x86)](https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi) and [Visual C++ 2013 Redistributable Package (x86)](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Note that regardless of whether you're on a 64-bit or 32-bit OS, you'll need the 32-bit versions of these. Check this box when prompted by Microsoft: ![redist_checkbox]
-2. Download the necessary [DLLs](http://minomino.org/quake/minqlbot_dependencies.zip) (developers might want to get the [debug build](#contribute)).
-3. Find quakelive.exe and extract the above files in the same folder, then make these files __read-only__. Make a folder called "python" in the same folder. It should look more or less like this: ![qlexe_path]
+2. Download ```minqlbot.zip``` and ```minqlbot_dependencies.zip``` from [here](https://github.com/MinoMino/minqlbot/releases/latest) (developers might want to get the [debug build](#contribute)).
+3. Find quakelive.exe and extract the contents of ```minqlbot_dependencies.zip``` in the same folder, then make these files __read-only__. Make a folder called "python" in the same folder. It should look more or less like this: ![qlexe_path]
 4. Go to the [plugins repository](https://github.com/MinoMino/minqlbot-plugins) and click the "Download ZIP" button on the right. Open the archive and extract the __contents__ of the "minqlbot-plugins-master" folder into the "python" folder we made earlier. I repeat, not the contents of the archive, but the contents of the folder __inside__ the archive.
 5. Open config.cfg in a text editor and make sure you set the `Nickname` field to whatever your account name on Quake Live is. You can go ahead and edit some other options as well, but it might be better to wait until you got the bot running correctly first, just in case you mess something up. Some plugins, such as the IRC plugin are deactivated by default. If you want them, you can add them to the plugin list in the config.
 6. Now, in order to know if everything's running fine and in order to receive help from me if something goes wrong, get [DebugView](http://technet.microsoft.com/en-us/sysinternals/bb896647.aspx). When you run it, you might get a window titled "DebugView Filter". Fill the "Include" box with "MINQLBOT", like in the following screenshot, then press OK: ![dbgview]
-7. Download [the bot itself](http://minomino.org/quake/minqlbot.dll) and my [injector](http://minomino.org/quake/Minjection.exe). These can be anywhere, but it's preferable that these two files are in the same folder (if you decide to put these with quakelive.exe, make sure they're read-only as well).
-8. Launch Quake Live, log in, and once you see the Quake Live browser and whatnot, you can go ahead and inject. To do so, launch minjection.exe, write `minqlbot.dll` under "Module", and write `quakelive.exe` under "Target process name", then click "Inject". Like in the following screenshot:
+7. Extract the contents of ```minqlbot.zip``` anywhere (if you decide to put these with quakelive.exe too, make sure they're read-only as well).
+8. Launch Quake Live, log in, and once you see the Quake Live browser and whatnot, you can go ahead and inject. To do so, launch Minjection, write `minqlbot.dll` under "Module", and write `quakelive.exe` under "Target process name", then click "Inject". Like in the following screenshot:
 
 ![minjection]
 
@@ -52,7 +52,7 @@ Some of the events are not implemented yet! This is still in an early stage.
 
 Contribute
 ==========
-If you'd like to contribute with code, you can fork this or the plugin repository and create pull requests for changes. I also regularly upload a [binary build of the debug version](http://minomino.org/quake/minqlbotd.dll) along with the [debug dependencies](http://minomino.org/quake/minqlbot_depend_debug.zip). The debug version is a lot more verbose and will also look for `minqlbot.py` and `plugin.py` in the `python` folder instead of using the ones built in the DLL. This will allow you to use `\bot restart` to reload these files instead of having to recompile the DLL all the time.
+If you'd like to contribute with code, you can fork this or the plugin repository and create pull requests for changes. The release page also has debug builds of the bot. The debug version is a lot more verbose and will also look for `minqlbot.py` and `plugin.py` in the `python` folder instead of using the ones built in the DLL. This will allow you to use `\bot restart` to reload these files instead of having to recompile the DLL all the time.
 
 If you found a bug, please open an issue here on Github.
 
