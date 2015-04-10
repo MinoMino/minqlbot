@@ -65,12 +65,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>M:\Programming\#Libraries\C++\boost;C:\Python34_x86\include;M:\Programming\#Libraries\C++\minhook-1.3-beta2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Python34_x86\libs;M:\Programming\#Libraries\C++\minhook-1.3-beta2\bin\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Python34_x86\libs;M:\Programming\#Libraries\C++\minhook\bin\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>M:\Programming\#Libraries\C++\boost;C:\Python34_x86\include;M:\Programming\#Libraries\C++\minhook-1.3-beta2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Python34_x86\libs;M:\Programming\#Libraries\C++\minhook-1.3-beta2\bin\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Python34_x86\libs;M:\Programming\#Libraries\C++\minhook\bin\Release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
