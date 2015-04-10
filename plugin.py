@@ -19,6 +19,7 @@
 import minqlbot
 import sqlite3
 import threading
+import re
 
 # Export hook priority levels.
 setattr(minqlbot, "PRI_HIGHEST", 0)
@@ -26,6 +27,12 @@ setattr(minqlbot, "PRI_HIGH",    1)
 setattr(minqlbot, "PRI_NORMAL",  2)
 setattr(minqlbot, "PRI_LOW",     3)
 setattr(minqlbot, "PRI_LOWEST",  4)
+
+# Configstring cache. See get_configstring() for details.
+cs_cache = {}
+cache_lock = threading.Lock()
+setattr(minqlbot, "_CS_CACHE", cs_cache)
+setattr(minqlbot, "_CS_CACHE_LOCK", cache_lock)
 
 def get_configstring(index, cached=True):
     """Wraps minqlbot._configstring and gives the option of cached configstrings.
@@ -172,6 +179,10 @@ class Player():
     @property
     def model(self):
         return self["model"]
+
+    @property
+    def country(self):
+        return self["c"]
 
 class DummyPlayer(Player):
     def __init__(self, name):
@@ -326,6 +337,69 @@ class Game():
     @property
     def capturelimit(self):
         return int(self["capturelimit"])
+
+    @property
+    def teamsize(self):
+        return self["teamsize"]
+
+class Scores():
+    pass
+
+class CaScores(Scores):
+    def __init__(self, scores):
+        self.player = Player(scores[0])
+        self.team = minqlbot.TEAMS[scores[1]]
+        self.premium = bool(scores[2])
+        self.score = scores[3]
+        self.ping = scores[4]
+        self.time = scores[5]
+        self.kills = scores[6]
+        self.deaths = scores[7]
+        self.accuracy = scores[8]
+        self.best_weapon = scores[9]
+        self.best_weapon_accuracy = scores[10]
+        self.damage_done = scores[11]
+        self.impressives = scores[12]
+        self.excellents = scores[13]
+        self.humiliations = scores[14]
+        self.perfect = scores[15]
+        self.alive = bool(scores[16])
+
+class CaEndScores(Scores):
+    def __init__(self, id_, scores):
+        self.player = Player(id_)
+        self.damage_done = scores[1]
+        self.damage_received = scores[2]
+        self._gaunt_accuracy = scores[3]
+        self.gaunt_kills = scores[4]
+        self.mg_accuracy = scores[5]
+        self.mg_kills = scores[6]
+        self.sg_accuracy = scores[7]
+        self.sg_kills = scores[8]
+        self.gl_accuracy = scores[9]
+        self.gl_kills = scores[10]
+        self.rl_accuracy = scores[11]
+        self.rl_kills = scores[12]
+        self.lg_accuracy = scores[13]
+        self.lg_kills = scores[14]
+        self.rg_accuracy = scores[15]
+        self.rg_kills = scores[16]
+        self.pg_accuracy = scores[17]
+        self.pg_kills = scores[18]
+        self._wpn9_accuracy = scores[19]
+        self._wpn9_kills = scores[20]
+        self._wpn10_accuracy = scores[21]
+        self._wpn10_kills = scores[22]
+        self._wpn11_accuracy = scores[23]
+        self._wpn11_kills = scores[24]
+        self._wpn12_accuracy = scores[25]
+        self._wpn12_kills = scores[26]
+        self._wpn13_accuracy = scores[27]
+        self._wpn13_kills = scores[28]
+        self.hmg_accuracy = scores[29]
+        self.hmg_kills = scores[30]
+        self._wpn15_accuracy = scores[31]
+        self._wpn15_kills = scores[32]
 
 class Plugin():
     """The base plugin class.
@@ -483,13 +557,14 @@ class Plugin():
         """Send a message to the chat, private message, or the console.
         
         """
-        if chat_channel == "chat":
-            self.send_command('say "{}"'.format(msg))
-        elif chat_channel == "team_chat":
-            self.send_command('say_team "{}"'.format(msg))
-        elif chat_channel == "console":
-            # Append newline since that's how chat behaves.
-            self.console(msg + '\n')
+        if isinstance(chat_channel, minqlbot.AbstractChannel):
+            chat_channel.reply(msg)
+        elif chat_channel == minqlbot.CHAT_CHANNEL:
+            minqlbot.CHAT_CHANNEL.reply(msg)
+        elif chat_channel == minqlbot.TEAM_CHAT_CHANNEL:
+            minqlbot.TEAM_CHAT_CHANNEL.reply(msg)
+        elif chat_channel == minqlbot.CONSOLE_CHANNEL:
+            minqlbot.CONSOLE_CHANNEL.reply(msg)
     
     def console(self, text):
         """Send text to be printed by the console.
@@ -789,11 +864,19 @@ class Plugin():
     def unpause(self):
         self.send_command('unpause')
         
-    def lock(self, team):
-        self.send_command('lock {}'.format(team))
+    def lock(self, team=None):
+        # You can lock both teams when no argument is passed.
+        if not team:
+            self.send_command('lock')
+        else:
+            self.send_command('lock {}'.format(team))
     
-    def unlock(self, team):
-        self.send_command('unlock {}'.format(team))
+    def unlock(self, team=None):
+        # You can unlock both teams when no argument is passed.
+        if not team:
+            self.send_command('unlock')
+        else:
+            self.send_command('unlock {}'.format(team))
     
     def stopserver(self):
         self.send_command('stopserver')
@@ -963,6 +1046,9 @@ class Plugin():
 setattr(minqlbot, "Player",  Player)
 setattr(minqlbot, "DummyPlayer", DummyPlayer)
 setattr(minqlbot, "Game",  Game)
+setattr(minqlbot, "Scores",  Scores)
+setattr(minqlbot, "CaScores",  CaScores)
+setattr(minqlbot, "CaEndScores",  CaEndScores)
 setattr(minqlbot, "Plugin",  Plugin)
 
 # ====================================================================

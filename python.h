@@ -35,8 +35,6 @@ extern object handle_console_command;
 extern object handle_console_print;
 extern object handle_unload;
 
-
-
 // Starts the Python interpreter and executes our main scripts.
 int Initialize();
 

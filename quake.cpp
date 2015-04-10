@@ -50,6 +50,10 @@ const char PATTERN_READBIGSTRING[]      = "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x08\
 const char MASK_READBIGSTRING[]         = "XXXXXXXXXXXXXXXXXXXX----XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 const int OFFSET_READBIGSTRING          = 0x0;
 
+const char PATTERN_READSHORT[]          = "\x55\x8B\xEC\x56\x8B\x75\x08\x6A\x10\x56\xE8\x00\x00\x00\x00\x8B\x4E\x14\x83\xC4\x08\x3B\x4E\x10\x98\x5E\x7E\x03\x83\xC8\xFF";
+const char MASK_READSHORT[]             = "XXXXXXXXXXX----XXXXXXXXXXXXXXXX";
+const int OFFSET_READSHORT              = 0x0;
+
 const char PATTERN_ADDRELIABLECOMMAND[] = "\x8B\x55\x08\x40\xA3\x00\x00\x00\x00\x83\xE0\x3F\x68\x00\x04\x00\x00\xC1\xE0\x0A\x52\x05";
 const char MASK_ADDRELIABLECOMMAND[]    = "XXXXX----XXXXXXXXXXXXX";
 const int OFFSET_ADDRELIABLECOMMAND     = -0x29;
@@ -89,6 +93,7 @@ void * parseservermessage_addr;
 void * parsecommandstring_addr;
 void * parsegamestate_addr;
 void * readbigstring_addr;
+void * readshort_addr;
 void * addreliablecommand_addr;
 void * addcommand_addr;
 void * removecommand_addr;
@@ -99,6 +104,7 @@ ParseServerMessage OParseServerMessage;
 ParseCommandString OParseCommandString;
 ParseGamestate OParseGamestate;
 ReadBigString OReadBigString;
+ReadShort OReadShort;
 AddReliableCommand OAddReliableCommand;
 AddCommand OAddCommand;
 RemoveCommand ORemoveCommand;
@@ -108,6 +114,7 @@ ConsolePrint OConsolePrint;
 bool hooked = false;
 int lastSeq; // The sequence of the last acknowledged server command.
 bool in_parse_gamestate = false;
+int gamestate_configstring_index = 0;
 
 std::vector< std::tuple<std::string, std::string, GenericHandler> > commands;
 
@@ -214,7 +221,7 @@ bool Initialize() {
     OAddCommand = (AddCommand)addcommand_addr;
     ORemoveCommand = (RemoveCommand)removecommand_addr;
     OGetArgs = (GetArgs)args_addr;
-    OConsolePrint = (ConsolePrint)consoleprints_addr;
+    //OConsolePrint = (ConsolePrint)consoleprints_addr;
   }
 
   return true;
@@ -261,6 +268,14 @@ bool FindFunctions() {
     failed = true;
   }
   else DOUT << "MSG_ReadBigString: base + " << (void *)((DWORD)readbigstring_addr - (DWORD)qlbase) << std::endl;
+
+  readshort_addr =
+    (void *)(hook_utils::FindPattern(qlbase, qlsize, PATTERN_READSHORT, MASK_READSHORT) + OFFSET_READSHORT);
+  if (!readshort_addr) {
+    DERR << "Failed to find MSG_ReadShort." << std::endl;
+    failed = true;
+  }
+  else DOUT << "MSG_ReadShort: base + " << (void *)((DWORD)readshort_addr - (DWORD)qlbase) << std::endl;
 
   addreliablecommand_addr =
     (void *)(hook_utils::FindPattern(qlbase, qlsize, PATTERN_ADDRELIABLECOMMAND, MASK_ADDRELIABLECOMMAND) + OFFSET_ADDRELIABLECOMMAND);
@@ -391,6 +406,10 @@ bool HookAll() {
     reinterpret_cast<void **>(&OParseGamestate)) != MH_OK ||
     MH_CreateHook(readbigstring_addr, &HReadBigString,
     reinterpret_cast<void **>(&OReadBigString)) != MH_OK ||
+    MH_CreateHook(readshort_addr, &HReadShort,
+    reinterpret_cast<void **>(&OReadShort)) != MH_OK ||
+    MH_CreateHook(consoleprints_addr, &HConsolePrint,
+    reinterpret_cast<void **>(&OConsolePrint)) != MH_OK ||
     MH_CreateHook(addreliablecommand_addr, &HAddReliableCommand,
     reinterpret_cast<void **>(&OAddReliableCommand)) != MH_OK) {
     DERR << "MinHook hooking failed." << std::endl;
@@ -408,6 +427,14 @@ bool HookAll() {
   }
   else if (MH_EnableHook(readbigstring_addr) != MH_OK) {
     DERR << "MinHook failed to enable hook for ReadBigString." << std::endl;
+    return false;
+  }
+  else if (MH_EnableHook(readshort_addr) != MH_OK) {
+    DERR << "MinHook failed to enable hook for ReadShort." << std::endl;
+    return false;
+  }
+  else if (MH_EnableHook(consoleprints_addr) != MH_OK) {
+    DERR << "MinHook failed to enable hook for ConsolePrint." << std::endl;
     return false;
   }
   else if (MH_EnableHook(addreliablecommand_addr) != MH_OK) {
@@ -566,7 +593,7 @@ void HandleCommandString(size_t index) {
   }
 }
 
-void HandleGamestateString(const char * configstring) {
+void HandleGamestate(int index, const char * configstring) {
   if (python::handle_gamestate.is_none()) return;
 
   std::string cfg(configstring);
@@ -574,7 +601,7 @@ void HandleGamestateString(const char * configstring) {
   python::ScopedGILAcquire gil;
   try {
     // Call our Python handler.
-    python::handle_gamestate(cfg);
+    python::handle_gamestate(index, cfg);
   }
   catch(boost::python::error_already_set &) {
     std::string err = python::get_error_traceback();
@@ -594,6 +621,22 @@ void HandleConnectionStatus(UINT32 status) {
     else {
       python::handle_connection_status(status);
     }
+  }
+  catch (boost::python::error_already_set &) {
+    std::string err = python::get_error_traceback();
+    python::output_debug_lines(err);
+  }
+}
+
+void HandleConsolePrint(const char * msg) {
+  if (python::handle_console_print.is_none()) return;
+
+  std::string msgstr(msg);
+
+  python::ScopedGILAcquire gil;
+  try {
+    // Call our Python handler.
+    python::handle_console_print(msgstr);
   }
   catch (boost::python::error_already_set &) {
     std::string err = python::get_error_traceback();
@@ -638,18 +681,31 @@ void HParseGamestate(void * msg) {
 char * HReadBigString(void * msg) {
   char * res = OReadBigString(msg);
 
-  if (in_parse_gamestate) { // Gamestate strings being parsed.
-    // A lot of other irrelevant strings are being used, so make
-    // sure you filter those in Python.
-    HandleGamestateString(res);
+  if (in_parse_gamestate) {
+    HandleGamestate(gamestate_configstring_index, res);
   }
 
   return res;
 }
 
+// MSG_ReadShort is called before MSG_ReadBigString, so we simply save the index for now.
+int HReadShort(void * msg) {
+  if (in_parse_gamestate) {
+    gamestate_configstring_index = OReadShort(msg);
+    return gamestate_configstring_index;
+  }
+
+  return OReadShort(msg);
+}
+
 void HAddReliableCommand(const char * cmd) {
   DOUT << "=> " << cmd << std::endl;
   AddQueuedCommand(cmd);
+}
+
+void HConsolePrint(const char * msg) {
+  HandleConsolePrint(msg);
+  OConsolePrint(msg);
 }
 
 ////////////////////////////////////////
@@ -670,14 +726,14 @@ void AddQueuedCommand(const std::string &cmd) {
       // Release ownership of the mutex object
       if (!ReleaseMutex(command_queue_mutex))
       {
-        DOUT << "ERROR: Failed to release message queue mutex!" << std::endl;
+        DERR << "Failed to release message queue mutex!" << std::endl;
       }
     }
     break;
 
     // The thread got ownership of an abandoned mutex
   case WAIT_ABANDONED:
-    DOUT << "ERROR: Abandoned message queue mutex!" << std::endl;
+    DERR << "Abandoned message queue mutex!" << std::endl;
   }
 }
 

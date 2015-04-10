@@ -52,7 +52,7 @@ BOOST_PYTHON_MODULE(minqlbot)
   def("debug",                  PyDebug);
   def("debug_ex",               PyDebugEx);
   def("send_command",           quake::HAddReliableCommand);
-  def("console_print",          quake::OConsolePrint);
+  def("console_print",          quake::HConsolePrint);
   def("_configstring",          quake::GetConfigstring);
   def("_configstring_range",    quake::GetConfigstringRange);
   def("version",                GetMinqlbotVersion);
