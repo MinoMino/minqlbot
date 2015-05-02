@@ -20,6 +20,24 @@ along with minqlbot. If not, see <http://www.gnu.org/licenses/>.
 
 namespace quake {
 
+typedef int qboolean;
+#define qtrue 1
+#define qfalse 2
+
+typedef struct cvar_s {
+  char		  *name;
+  char		  *string;
+  char		  *resetString;		// cvar_restart will reset to this value
+  char		  *latchedString;		// for CVAR_LATCH vars
+  int			  flags;
+  qboolean  modified;			// set each time the cvar is changed
+  int			  modificationCount;	// incremented each time the cvar is changed
+  float		  value;				// atof( string )
+  int			  integer;			// atoi( string )
+  struct cvar_s *next;
+  struct cvar_s *hashNext;
+} cvar_t;
+
 typedef enum {
   NA_BOT,
   NA_BAD, // an address lookup failed

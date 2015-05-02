@@ -58,6 +58,8 @@ BOOST_PYTHON_MODULE(minqlbot)
   def("version",                GetMinqlbotVersion);
   def("reinitialize",           quake::Initialize);
   def("connection_status",      quake::GetConnectionStatus);
+  def("get_cvar",               quake::CvarFindWrapper);
+  def("console_command",        quake::ExecuteStringWrapper);
 }
 
 int Initialize() {

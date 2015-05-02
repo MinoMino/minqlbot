@@ -66,6 +66,8 @@ typedef void (__cdecl * AddCommand)(const char * cmd, void * func);
 typedef void (__cdecl * RemoveCommand)(const char * cmd);
 typedef char * (__cdecl * GetArgs)();
 typedef void (__cdecl * ConsolePrint)(const char * msg);
+typedef cvar_t * (__cdecl * CvarFind)(const char * var_name);
+typedef void (__cdecl * ExecuteString)(const char * msg);
 
 
 // Original function pointers.
@@ -78,6 +80,8 @@ extern AddCommand OAddCommand;
 extern RemoveCommand ORemoveCommand;
 extern GetArgs OGetArgs;
 extern ConsolePrint OConsolePrint;
+extern CvarFind OCvarFind;
+extern ExecuteString OExecuteString;
 
 DWORD WINAPI MainThread(HMODULE hModule);
 void CleanUp();
@@ -111,6 +115,10 @@ char * __cdecl HReadBigString(void * msg);
 int __cdecl HReadShort(void * msg);
 void __cdecl HAddReliableCommand(const char * cmd);
 void __cdecl HConsolePrint(const char * msg);
+
+// Wrappers.
+const char * CvarFindWrapper(const char * var_name);
+void ExecuteStringWrapper(const char * cmd);
 
 // Helpers
 void AddQueuedCommand(const std::string &cmd);

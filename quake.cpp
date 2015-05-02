@@ -78,6 +78,15 @@ const char PATTERN_CONFIGSTRINGS[]      = "\x83\x3D\x00\x00\x00\x00\x08\x74\x0E\
 const char MASK_CONFIGSTRINGS[]         = "XX----XXXX----X----XXXXXXXXXXXXX";
 const int OFFSET_CONFIGSTRINGS          = 0x0;
 
+const char PATTERN_CVARFINDVAR[]        = "\x55\x8B\xEC\x56\x57\x8B\x7D\x08\x8B\xC7\xE8\x00\x00\x00\x00\x8B\x34\x85\x00\x00\x00\x00\x85\xF6\x74\x1D";
+const char MASK_CVARFINDVAR[]           = "XXXXXXXXXXX----XXX----XXXX";
+const int OFFSET_CVARFINDVAR            = 0x0;
+
+const char PATTERN_EXECUTESTRING[]      = "\x55\x8B\xEC\x53\x8B\x5D\x08\x53\xE8\x00\x00\x00\x00\x83\xC4\x04\x83\x3D\x00\x00\x00\x00\x00\x0F";
+const char MASK_EXECUTESTRING[]         = "XXXXXXXXX----XXXXX----XX";
+const int OFFSET_EXECUTESTRING          = 0x0;
+
+
 
 
 namespace quake {
@@ -100,6 +109,8 @@ void * removecommand_addr;
 void * args_addr;
 void * consoleprints_addr;
 void * configstrings_addr;
+void * cvarfind_addr;
+void * executestring_addr;
 ParseServerMessage OParseServerMessage;
 ParseCommandString OParseCommandString;
 ParseGamestate OParseGamestate;
@@ -110,6 +121,8 @@ AddCommand OAddCommand;
 RemoveCommand ORemoveCommand;
 GetArgs OGetArgs;
 ConsolePrint OConsolePrint;
+CvarFind OCvarFind;
+ExecuteString OExecuteString;
 
 bool hooked = false;
 int lastSeq; // The sequence of the last acknowledged server command.
@@ -221,6 +234,8 @@ bool Initialize() {
     OAddCommand = (AddCommand)addcommand_addr;
     ORemoveCommand = (RemoveCommand)removecommand_addr;
     OGetArgs = (GetArgs)args_addr;
+    OCvarFind = (CvarFind)cvarfind_addr;
+    OExecuteString = (ExecuteString)executestring_addr;
     //OConsolePrint = (ConsolePrint)consoleprints_addr;
   }
 
@@ -324,6 +339,22 @@ bool FindFunctions() {
     failed = true;
   }
   else DOUT << "configstrings (function): base + " << (void *)((DWORD)configstrings_addr - (DWORD)qlbase) << std::endl;
+
+  cvarfind_addr =
+    (void *)(hook_utils::FindPattern(qlbase, qlsize, PATTERN_CVARFINDVAR, MASK_CVARFINDVAR) + OFFSET_CVARFINDVAR);
+  if (!cvarfind_addr) {
+    DERR << "Failed to find Cvar_FindVar." << std::endl;
+    failed = true;
+  }
+  else DOUT << "Cvar_FindVar: base + " << (void *)((DWORD)cvarfind_addr - (DWORD)qlbase) << std::endl;
+
+  executestring_addr =
+    (void *)(hook_utils::FindPattern(qlbase, qlsize, PATTERN_EXECUTESTRING, MASK_EXECUTESTRING) + OFFSET_EXECUTESTRING);
+  if (!executestring_addr) {
+    DERR << "Failed to find ExecuteString." << std::endl;
+    failed = true;
+  }
+  else DOUT << "ExecuteString: base + " << (void *)((DWORD)executestring_addr - (DWORD)qlbase) << std::endl;
 
   if (failed) return false;
 
@@ -494,7 +525,7 @@ void HandleConsoleCommands() {
 
   std::vector<std::string> res = split(args, ' ');
   if (res.size() > 0) {
-    for (std::vector<std::tuple<std::string, std::string, GenericHandler>>::iterator it = commands.begin(); it != commands.end(); ++it) {
+    for (auto it = commands.begin(); it != commands.end(); ++it) {
       if (!std::get<0>(*it).compare(res[0])) {
         std::get<2>(*it)(res);
         return;
@@ -706,6 +737,23 @@ void HAddReliableCommand(const char * cmd) {
 void HConsolePrint(const char * msg) {
   HandleConsolePrint(msg);
   OConsolePrint(msg);
+}
+
+////////////////////////////////////////
+//  WRAPPER FUNCTIONS
+
+const char * CvarFindWrapper(const char * var_name) {
+  cvar_t * res = OCvarFind(var_name);
+
+  if (res == NULL) return NULL;
+  else return res->string;
+}
+
+void ExecuteStringWrapper(const char * cmd) {
+  std::vector<std::string> split_cmd = split(cmd, ';');
+
+  for (auto it = split_cmd.begin(); it != split_cmd.end(); it++)
+    OExecuteString((*it).c_str());
 }
 
 ////////////////////////////////////////
