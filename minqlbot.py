@@ -1093,8 +1093,6 @@ def load_plugin(plugin):
     if plugin in plugins:
         return reload_plugin(plugin)
     try:
-        #__import__("plugins." + plugin, globals(), locals())
-        #plugin_class = getattr(sys.modules["plugins." + plugin], plugin)
         module = importlib.import_module("plugins." + plugin)
         plugin_class = getattr(module, plugin)
         if issubclass(plugin_class, minqlbot.Plugin):
