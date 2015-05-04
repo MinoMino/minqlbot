@@ -176,7 +176,7 @@ DWORD WINAPI MainThread(HMODULE module_handle) {
   char welcome_msg[128];
   sprintf_s(welcome_msg,
     "^4minqlbot ^7v%s <^4http://minomino.org/^7>\nUse '\\bot help' for a command list\n", GetMinqlbotVersion());
-  //OConsolePrint(welcome_msg);
+  OConsolePrint(welcome_msg);
 
   DOUT << "Entering the main loop..." << std::endl;
   command_queue_stop_event = CreateEvent(NULL, TRUE, FALSE, TEXT("command_queue_stop_event"));
