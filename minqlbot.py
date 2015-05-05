@@ -1,5 +1,5 @@
 # minqlbot - A Quake Live server administrator bot.
-# Copyright (C) Mino <mino@minomino.org>
+# Copyright (C) 2015 Mino <mino@minomino.org>
 
 # This file is part of minqlbot.
 
