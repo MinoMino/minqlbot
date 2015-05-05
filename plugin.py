@@ -184,6 +184,41 @@ class Player():
     def country(self):
         return self["c"]
 
+    @property
+    def valid(self):
+        try:
+            self["n"]
+            return True
+        except NonexistentPlayerError:
+            return False
+
+    def tell(self, msg):
+        return Plugin.tell(self, msg)
+
+    def kick(self):
+        return Plugin.kick(self)
+
+    def kickban(self):
+        return Plugin.kickban(self)
+
+    def op(self):
+        return Plugin.op(self)
+
+    def deop(self):
+        return Plugin.deop(self)
+
+    def mute(self):
+        return Plugin.mute(self)
+
+    def unmute(self):
+        return Plugin.unmute(self)
+
+    def put(self, team):
+        return Plugin.put(self, team)
+
+    def switch(self, other_player):
+        return Plugin.switch(self, other_player)
+
 class DummyPlayer(Player):
     def __init__(self, name):
         self.cs = (
@@ -342,6 +377,26 @@ class Game():
     def teamsize(self):
         return self["teamsize"]
 
+    @staticmethod
+    def abort():
+        return Plugin.abort()
+
+    @staticmethod
+    def timeout():
+        return Plugin.timeout()
+
+    @staticmethod
+    def timein():
+        return Plugin.timein()
+
+    @staticmethod
+    def pause():
+        return Plugin.pause()
+
+    @staticmethod
+    def unpause():
+        return Plugin.unpause()
+
 class Scores():
     pass
 
@@ -435,7 +490,8 @@ class Plugin():
             self.__commands = []
         return self.__commands.copy()
     
-    def __player_configstrings(self):
+    @classmethod
+    def __player_configstrings(cls):
         players = {}
         for i in range(24):
             cs = minqlbot.get_configstring(i + 529)
@@ -444,7 +500,8 @@ class Plugin():
         
         return players
 
-    def __dummy_player(self, name):
+    @classmethod
+    def __dummy_player(cls, name):
         """Return a Player instance with the bot's name, but generic cvars and invalid client id.
 
         """
@@ -482,18 +539,20 @@ class Plugin():
             if cmd.name == name and cmd.handler == handler:
                 minqlbot.COMMANDS.remove_command(cmd)
     
-    def players(self):
+    @classmethod
+    def players(cls):
         """Get a list of all the players on the server.
         
         """
         player_list = []
-        players_cs = self.__player_configstrings()
+        players_cs = cls.__player_configstrings()
         for index in players_cs:
             player_list.append(Player(index))
         
         return player_list
 
-    def player(self, name, player_list=None):
+    @classmethod
+    def player(cls, name, player_list=None):
         """Get the player instance of a single player.
         
         """
@@ -505,7 +564,7 @@ class Plugin():
 
 
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
 
@@ -513,9 +572,9 @@ class Plugin():
         # we make a dummy player instance. This is useful for functions that also should
         # work while disconnected by perhaps expect a Player instance to check the name or whatnot.
         if not players and name == minqlbot.NAME:
-            return self.__dummy_player(name)
+            return cls.__dummy_player(name)
 
-        cid = self.client_id(name, players)
+        cid = cls.client_id(name, players)
 
         for p in players:
             if p.id == cid:
@@ -523,7 +582,8 @@ class Plugin():
 
         return None
 
-    def game(self):
+    @classmethod
+    def game(cls):
         """Get a Game instance.
 
         """
@@ -532,7 +592,8 @@ class Plugin():
         except NonexistentGameError:
             return None
         
-    def debug(self, msg, only_debug=False):
+    @classmethod
+    def debug(cls, msg, only_debug=False):
         """Send a debug string that can be picked up by DebugView or similar applications.
         
         Args:
@@ -544,16 +605,17 @@ class Plugin():
         if only_debug and not minqlbot.IS_DEBUG:
             return
         else:
-            minqlbot.debug("[{}] {}".format(type(self).__name__, str(msg)))
+            minqlbot.debug("[{}] {}".format(type(cls).__name__, str(msg)))
 
-    def send_command(self, cmd):
+    @classmethod
+    def send_command(cls, cmd):
         """minqlbot.send_command is a C++ function, so we wrap it for Python debugging purposes.
 
         """
-        #self.debug("=> " + cmd, only_debug=True)
         minqlbot.send_command(cmd)
     
-    def msg(self, msg, chat_channel="chat"):
+    @classmethod
+    def msg(cls, msg, chat_channel="chat"):
         """Send a message to the chat, private message, or the console.
         
         """
@@ -566,19 +628,22 @@ class Plugin():
         elif chat_channel == minqlbot.CONSOLE_CHANNEL:
             minqlbot.CONSOLE_CHANNEL.reply(msg)
     
-    def console(self, text):
+    @classmethod
+    def console(cls, text):
         """Send text to be printed by the console.
         
         """
         minqlbot.console_print(str(text))
 
-    def clean_text(self, text):
+    @classmethod
+    def clean_text(cls, text):
         """Removes color tags from text.
         
         """
         return re.sub(r"\^[^\^]", "", text)
 
-    def clean_name(self, name, clan=False):
+    @classmethod
+    def clean_name(cls, name, clan=False):
         """Removes color tags from names. Removes clantags by default.
 
         Args:
@@ -586,14 +651,15 @@ class Plugin():
             clan (bool): Whether to keep or remove clantags if present.
         
         """
-        clean = self.clean_text(name)
+        clean = cls.clean_text(name)
         split = clean.split()
         if not clan and len(split) > 1:
             return split[1]
         else:
             return clean
     
-    def colored_name(self, name, clan=False, player_list=None):
+    @classmethod
+    def colored_name(cls, name, clan=False, player_list=None):
         """Get the colored name of a decolored name.
         
         """
@@ -601,11 +667,11 @@ class Plugin():
             return name.name
 
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
         
-        clean = self.clean_name(name).lower()
+        clean = cls.clean_name(name).lower()
         for p in players:
             if p.clean_name.lower() == clean:
                     split = p.name.split()
@@ -616,7 +682,8 @@ class Plugin():
 
         return None
 
-    def client_id(self, name, player_list=None):
+    @classmethod
+    def client_id(cls, name, player_list=None):
         """Get a player's client id from the name or Player object.
 
         """
@@ -626,23 +693,24 @@ class Plugin():
             return name.id
 
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
 
-        clean = self.clean_name(name).lower()
+        clean = cls.clean_name(name).lower()
         for p in players:
             if p.clean_name.lower() == clean:
                 return p.id
 
         return None
 
-    def player_name(self, cid, player_list=None):
+    @classmethod
+    def player_name(cls, cid, player_list=None):
         """Get a player's name from a client id.
 
         """
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
 
@@ -652,7 +720,8 @@ class Plugin():
 
         return None
 
-    def find_player(self, begins, player_list=None):
+    @classmethod
+    def find_player(cls, begins, player_list=None):
         """Find a player based on what the name starts with.
 
         Args:
@@ -660,12 +729,12 @@ class Plugin():
 
         """
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
 
         # Try the exact name first.
-        clean = self.clean_name(begins).lower()
+        clean = cls.clean_name(begins).lower()
         for p in players:
             if p.clean_name.lower() == clean:
                 return p
@@ -677,12 +746,13 @@ class Plugin():
                 return p
         return None
 
-    def teams(self, player_list=None):
+    @classmethod
+    def teams(cls, player_list=None):
         """Get a dictionary with the teams as keys and players as values
 
         """
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
 
@@ -695,19 +765,21 @@ class Plugin():
 
         return res
 
-    def tell(self, msg, recipient):
+    @classmethod
+    def tell(cls, msg, recipient):
         """Send a tell (private message) to someone.
 
         """
-        cid = self.client_id(recipient)
+        cid = cls.client_id(recipient)
 
         if cid != None:
-            self.send_command('tell {} "{}"'.format(cid, msg))
+            cls.send_command('tell {} "{}"'.format(cid, msg))
             return True
         else:
             return False
 
-    def delay(self, interval, function, args=[], kwargs={}):
+    @classmethod
+    def delay(cls, interval, function, args=[], kwargs={}):
         """Delay a function call by a certain amount of time
 
         """
@@ -715,13 +787,15 @@ class Plugin():
         t.start()
         return t
 
-    def is_vote_active(self):
+    @classmethod
+    def is_vote_active(cls):
         if minqlbot.get_configstring(9):
             return True
         else:
             return False
 
-    def current_vote_count(self):
+    @classmethod
+    def current_vote_count(cls):
         yes = get_configstring(10)
         no = get_configstring(11)
         if yes and no:
@@ -729,88 +803,99 @@ class Plugin():
         else:
             return None
 
-    def callvote(self, vote):
-        self.send_command("callvote {}".format(vote))
+    @classmethod
+    def callvote(cls, vote):
+        cls.send_command("callvote {}".format(vote))
     
-    def vote_yes(self):
-        self.send_command("vote yes")
+    @classmethod
+    def vote_yes(cls):
+        cls.send_command("vote yes")
     
-    def vote_no(self):
-        self.send_command("vote no")
+    @classmethod
+    def vote_no(cls):
+        cls.send_command("vote no")
 
-    def change_name(self, name):
-        self.send_command("name {}".format(name))
+    @classmethod
+    def change_name(cls, name):
+        cls.send_command("name {}".format(name))
 
-    def teamsize(self, size):
-        if not self.is_vote_active():
-            self.callvote("teamsize {}".format(size))
-            self.vote_yes()
+    @classmethod
+    def teamsize(cls, size):
+        if not cls.is_vote_active():
+            cls.callvote("teamsize {}".format(size))
+            cls.vote_yes()
             return True
         else:
             return False
 
-    def kick(self, player):
-        player = self.player(player) #self.player() can handle str, Player and int
-        if not self.is_vote_active():
-            self.callvote("kick {}".format(player.clean_name))
-            self.vote_yes()
-            return True
-        else:
-            return False
-    
-    def shuffle(self):
-        if not self.is_vote_active():
-            self.callvote("shuffle")
-            self.vote_yes()
-            return True
-        else:
-            return False
-
-    def cointoss(self):
-        if not self.is_vote_active():
-            self.callvote("cointoss")
-            self.vote_yes()
-            return True
-        else:
-            return False
-
-    def changemap(self, map_):
-        if not self.is_vote_active():
-            self.callvote("map {}".format(map_))
-            self.vote_yes()
-            return True
-        else:
-            return False
-
-    def ruleset(self, ruleset):
-        if not self.is_vote_active():
-            self.callvote("ruleset {}".format(ruleset))
-            self.vote_yes()
+    @classmethod
+    def kick(cls, player):
+        player = cls.player(player) #cls.player() can handle str, Player and int
+        if not cls.is_vote_active():
+            cls.callvote("kick {}".format(player.clean_name))
+            cls.vote_yes()
             return True
         else:
             return False
     
-    def switch(self, p1, p2, player_list=None):
+    @classmethod
+    def shuffle(cls):
+        if not cls.is_vote_active():
+            cls.callvote("shuffle")
+            cls.vote_yes()
+            return True
+        else:
+            return False
+
+    @classmethod
+    def cointoss(cls):
+        if not cls.is_vote_active():
+            cls.callvote("cointoss")
+            cls.vote_yes()
+            return True
+        else:
+            return False
+
+    @classmethod
+    def changemap(cls, map_):
+        if not cls.is_vote_active():
+            cls.callvote("map {}".format(map_))
+            cls.vote_yes()
+            return True
+        else:
+            return False
+
+    @classmethod
+    def ruleset(cls, ruleset):
+        if not cls.is_vote_active():
+            cls.callvote("ruleset {}".format(ruleset))
+            cls.vote_yes()
+            return True
+        else:
+            return False
+    
+    @classmethod
+    def switch(cls, p1, p2, player_list=None):
         if not player_list:
-            players = self.players()
+            players = cls.players()
         else:
             players = player_list
 
-        p1_p = self.player(p1, players)
-        p2_p = self.player(p2, players)
+        p1_p = cls.player(p1, players)
+        p2_p = cls.player(p2, players)
 
         if not p1_p or not p2_p:
             return False
 
         if p1_p.team == "red" and p2_p.team == "blue":
-            self.put(p1_p, "spectator")
-            self.put(p2_p, "red")
-            self.put(p1_p, "blue")
+            cls.put(p1_p, "spectator")
+            cls.put(p2_p, "red")
+            cls.put(p1_p, "blue")
             return True
         elif p2_p.team == "red" and p1_p.team == "blue":    
-            self.put(p1_p, "spectator")
-            self.put(p2_p, "blue")
-            self.put(p1_p, "red")
+            cls.put(p1_p, "spectator")
+            cls.put(p2_p, "blue")
+            cls.put(p1_p, "red")
             return True
         else:
             return False
@@ -819,82 +904,99 @@ class Plugin():
     #                       OWNER AND OP COMMANDS
     # ====================================================================
     
-    def op(self, name):
-        cid = self.client_id(name)
+    @classmethod
+    def op(cls, name):
+        cid = cls.client_id(name)
 
         if cid != None:
-            self.send_command("op {}".format(cid))
+            cls.send_command("op {}".format(cid))
     
-    def deop(self, name):
-        cid = self.client_id(name)
+    @classmethod
+    def deop(cls, name):
+        cid = cls.client_id(name)
             
         if cid != None:
-            self.send_command("deop {}".format(cid))
+            cls.send_command("deop {}".format(cid))
     
-    def mute(self, name):
-        cid = self.client_id(name)
+    @classmethod
+    def mute(cls, name):
+        cid = cls.client_id(name)
             
         if cid != None:
-            self.send_command("mute {}".format(cid))
+            cls.send_command("mute {}".format(cid))
     
-    def unmute(self, name):
-        cid = self.client_id(name)
+    @classmethod
+    def unmute(cls, name):
+        cid = cls.client_id(name)
             
         if cid != None:
-            self.send_command("unmute {}".format(cid))
+            cls.send_command("unmute {}".format(cid))
     
-    def opsay(self, msg):
-        self.send_command('opsay "{0}"'.format(msg))
+    @classmethod
+    def opsay(cls, msg):
+        cls.send_command('opsay "{0}"'.format(msg))
     
-    def abort(self):
-        self.send_command('abort')
+    @classmethod
+    def abort(cls):
+        cls.send_command('abort')
     
-    def allready(self):
-        self.send_command('allready')
+    @classmethod
+    def allready(cls):
+        cls.send_command('allready')
     
-    def timeout(self):
-        self.send_command('timeout')
+    @classmethod
+    def timeout(cls):
+        cls.send_command('timeout')
     
-    def timein(self):
-        self.send_command('timein')
+    @classmethod
+    def timein(cls):
+        cls.send_command('timein')
     
-    def pause(self):
-        self.send_command('pause')
+    @classmethod
+    def pause(cls):
+        cls.send_command('pause')
     
-    def unpause(self):
-        self.send_command('unpause')
+    @classmethod
+    def unpause(cls):
+        cls.send_command('unpause')
         
-    def lock(self, team=None):
+    @classmethod
+    def lock(cls, team=None):
         # You can lock both teams when no argument is passed.
         if not team:
-            self.send_command('lock')
+            cls.send_command('lock')
         else:
-            self.send_command('lock {}'.format(team))
+            cls.send_command('lock {}'.format(team))
     
-    def unlock(self, team=None):
+    @classmethod
+    def unlock(cls, team=None):
         # You can unlock both teams when no argument is passed.
         if not team:
-            self.send_command('unlock')
+            cls.send_command('unlock')
         else:
-            self.send_command('unlock {}'.format(team))
+            cls.send_command('unlock {}'.format(team))
     
-    def stopserver(self):
-        self.send_command('stopserver')
+    @classmethod
+    def stopserver(cls):
+        cls.send_command('stopserver')
     
-    def banlist(self):
-        self.send_command('banlist')
+    @classmethod
+    def banlist(cls):
+        cls.send_command('banlist')
     
-    def put(self, player, team):
-        cid = self.client_id(player)
+    @classmethod
+    def put(cls, player, team):
+        cid = cls.client_id(player)
             
         if cid != None:
-            self.send_command("put {} {}".format(cid, team))
+            cls.send_command("put {} {}".format(cid, team))
     
-    def kickban(self, player):
-        cid = self.client_id(player)
+    @classmethod
+    def kickban(cls, player):
+        cid = cls.client_id(player)
             
         if cid != None:
-            self.send_command("kickban {}".format(cid))
+            cls.send_command("kickban {}".format(cid))
 
 
     # ====================================================================
@@ -1050,8 +1152,3 @@ setattr(minqlbot, "Scores",  Scores)
 setattr(minqlbot, "CaScores",  CaScores)
 setattr(minqlbot, "CaEndScores",  CaEndScores)
 setattr(minqlbot, "Plugin",  Plugin)
-
-# ====================================================================
-#                               HELPERS
-# ====================================================================
-
