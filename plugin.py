@@ -193,7 +193,7 @@ class Player():
             return False
 
     def tell(self, msg):
-        return Plugin.tell(self, msg)
+        return Plugin.tell(msg, self)
 
     def kick(self):
         return Plugin.kick(self)
@@ -218,6 +218,9 @@ class Player():
 
     def switch(self, other_player):
         return Plugin.switch(self, other_player)
+
+    def follow(self):
+        return Plugin.follow(self)
 
 class DummyPlayer(Player):
     def __init__(self, name):
@@ -605,7 +608,7 @@ class Plugin():
         if only_debug and not minqlbot.IS_DEBUG:
             return
         else:
-            minqlbot.debug("[{}] {}".format(type(cls).__name__, str(msg)))
+            minqlbot.debug("[{}] {}".format(cls.__name__, str(msg)))
 
     @classmethod
     def send_command(cls, cmd):
@@ -806,18 +809,22 @@ class Plugin():
     @classmethod
     def callvote(cls, vote):
         cls.send_command("callvote {}".format(vote))
+        return True
     
     @classmethod
     def vote_yes(cls):
         cls.send_command("vote yes")
+        return True
     
     @classmethod
     def vote_no(cls):
         cls.send_command("vote no")
+        return True
 
     @classmethod
     def change_name(cls, name):
         cls.send_command("name {}".format(name))
+        return True
 
     @classmethod
     def teamsize(cls, size):
@@ -900,6 +907,15 @@ class Plugin():
         else:
             return False
 
+    @classmethod
+    def follow(cls, name):
+        cid = cls.client_id(name)
+
+        if cid != None:
+            cls.send_command("follow {}".format(cid))
+            return True
+        return False
+
     # ====================================================================
     #                       OWNER AND OP COMMANDS
     # ====================================================================
@@ -910,6 +926,8 @@ class Plugin():
 
         if cid != None:
             cls.send_command("op {}".format(cid))
+            return True
+        return False
     
     @classmethod
     def deop(cls, name):
@@ -917,6 +935,8 @@ class Plugin():
             
         if cid != None:
             cls.send_command("deop {}".format(cid))
+            return True
+        return False
     
     @classmethod
     def mute(cls, name):
@@ -924,6 +944,8 @@ class Plugin():
             
         if cid != None:
             cls.send_command("mute {}".format(cid))
+            return True
+        return False
     
     @classmethod
     def unmute(cls, name):
@@ -931,34 +953,43 @@ class Plugin():
             
         if cid != None:
             cls.send_command("unmute {}".format(cid))
+            return True
+        return False
     
     @classmethod
     def opsay(cls, msg):
         cls.send_command('opsay "{0}"'.format(msg))
+        return True
     
     @classmethod
     def abort(cls):
         cls.send_command('abort')
+        return True
     
     @classmethod
     def allready(cls):
         cls.send_command('allready')
+        return True
     
     @classmethod
     def timeout(cls):
         cls.send_command('timeout')
+        return True
     
     @classmethod
     def timein(cls):
         cls.send_command('timein')
+        return True
     
     @classmethod
     def pause(cls):
         cls.send_command('pause')
+        return True
     
     @classmethod
     def unpause(cls):
         cls.send_command('unpause')
+        return True
         
     @classmethod
     def lock(cls, team=None):
@@ -967,6 +998,7 @@ class Plugin():
             cls.send_command('lock')
         else:
             cls.send_command('lock {}'.format(team))
+        return True
     
     @classmethod
     def unlock(cls, team=None):
@@ -975,14 +1007,17 @@ class Plugin():
             cls.send_command('unlock')
         else:
             cls.send_command('unlock {}'.format(team))
+        return True
     
     @classmethod
     def stopserver(cls):
         cls.send_command('stopserver')
+        return True
     
     @classmethod
     def banlist(cls):
         cls.send_command('banlist')
+        return True
     
     @classmethod
     def put(cls, player, team):
@@ -990,6 +1025,8 @@ class Plugin():
             
         if cid != None:
             cls.send_command("put {} {}".format(cid, team))
+            return True
+        return False
     
     @classmethod
     def kickban(cls, player):
@@ -997,6 +1034,8 @@ class Plugin():
             
         if cid != None:
             cls.send_command("kickban {}".format(cid))
+            return True
+        return False
 
 
     # ====================================================================
@@ -1152,3 +1191,8 @@ setattr(minqlbot, "Scores",  Scores)
 setattr(minqlbot, "CaScores",  CaScores)
 setattr(minqlbot, "CaEndScores",  CaEndScores)
 setattr(minqlbot, "Plugin",  Plugin)
+
+# ====================================================================
+#                               HELPERS
+# ====================================================================
+
