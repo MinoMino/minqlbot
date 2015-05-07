@@ -400,6 +400,10 @@ class Game():
     def unpause():
         return Plugin.unpause()
 
+    @staticmethod
+    def scores():
+        return Plugin.scores()
+
 class Scores():
     pass
 
@@ -915,6 +919,11 @@ class Plugin():
             cls.send_command("follow {}".format(cid))
             return True
         return False
+
+    @classmethod
+    def scores(cls):
+        cls.send_command("score")
+        return True
 
     # ====================================================================
     #                       OWNER AND OP COMMANDS
