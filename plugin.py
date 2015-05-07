@@ -1076,6 +1076,7 @@ class Plugin():
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("PRAGMA foreign_keys = ON") # Enforce foreign keys.
+            cursor.execute("PRAGMA busy_timeout = 5000") # Wait 5s if it gets locked.
             with self.db_lock:
                 self.db_connections[thread] = conn
             return conn
