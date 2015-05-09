@@ -441,6 +441,8 @@ class EventHandler:
     the method 'trigger' should be called, which will take care of calling hooked functions.
 
     """
+    no_debug = ("raw", "console", "scores", "gamestate")
+    
     def __init__(self, name):
         self.name = name
         self.plugins = {}
@@ -449,7 +451,8 @@ class EventHandler:
         """Registered hooks for this event are called from highest to lowest priority.
         
         """
-        if minqlbot.IS_DEBUG and self.name != "raw":
+
+        if minqlbot.IS_DEBUG and self.name not in EventHandler.no_debug:
             minqlbot.debug("{}{}".format(self.name, args))
 
         plugins = self.plugins.copy()
