@@ -872,8 +872,8 @@ def parse(cmdstr):
         if cvars:
             round_number = int(cvars["round"])
             if round_number and "time" in cvars:
-                if round_number == 1:  # This is the case when the game starts.
-                    event_handlers["round_start"].trigger(round_number)
+                if round_number == 1:  # This is the case when the first countdown starts.
+                    event_handlers["round_countdown"].trigger(round_number)
                     return
 
                 event_handlers["round_countdown"].trigger(round_number)
