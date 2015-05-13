@@ -37,7 +37,7 @@ import minqlbot
 setattr(minqlbot, "__version__", minqlbot.version())
 
 # QL keeps track of teams in terms for integers. The integer = the tuple's index.
-setattr(minqlbot, "TEAMS", ("default", "red", "blue", "spectator"))
+setattr(minqlbot, "TEAMS", ("free", "red", "blue", "spectator"))
 # Gametypes. The integer = the tuple's index.
 setattr(minqlbot, "GAMETYPES", ("Free for All", "Duel", "Race", "Team Deathmatch", "Clan Arena",
     "Capture the Flag", "Overload", "Harvester", "Freeze Tag", "Domination", "Attack and Defend", "Red Rover"))
@@ -789,6 +789,7 @@ re_vote_ended = re.compile(r'print "Vote (?P<result>passed|failed).')
 re_player_change = re.compile(r'cs 5(?P<id>[2-5][0-9]) "(?P<cvars>.*)"')
 re_scores_ca = re.compile(r'scores_ca (?P<total_players>.+?) (?P<red_score>.+?) (?P<blue_score>.+?) (?P<scores>.+)')
 re_castats = re.compile(r'castats (?P<scores>.+)')
+re_scores_race = re.compile(r'scores_race (?P<total_players>.+?) (?P<scores>.+)')
 
 # bcs0 is a special case, as it's a configstring that's too big, so it's split into several parts.
 # bcs0 indicates we start an incomplete configstring, bcs1 means we add it to the
@@ -1033,6 +1034,7 @@ def parse(cmdstr):
             castats_order.append(raw_scores[i*17])
             scores.append(minqlbot.CaScores(raw_scores[i*17:i*17+17]))
         event_handlers["scores"].trigger(scores)
+        return
 
     # castats
     res = re_castats.match(cmdstr)
@@ -1047,6 +1049,20 @@ def parse(cmdstr):
             tmp = castats_buffer
             castats_buffer = []
             event_handlers["stats"].trigger(tmp)
+        return
+
+    # scores_race
+    res = re_scores_race.match(cmdstr)
+    if res:
+        # Race scores actually send the number of players currently playing.
+        # In other words, total_players decrease if someone spectates, but still sends the stats.
+        total_players = len(res.group("scores").split()) // 5 # Should never have a remainder.
+        raw_scores = [int(i) for i in res.group("scores").split()]
+        scores = []
+        for i in range(total_players):
+            scores.append(minqlbot.RaceScores(raw_scores[i*5:i*5+5]))
+        event_handlers["scores"].trigger(scores)
+        return
 
 
 # ====================================================================

@@ -19,6 +19,7 @@
 import minqlbot
 import sqlite3
 import threading
+import datetime
 import re
 
 # Export hook priority levels.
@@ -405,15 +406,20 @@ class Game():
         return Plugin.scores()
 
 class Scores():
-    pass
+    def __init__(self, cid, score, ping):
+        self.player = Player(cid)
+        self.score = score
+        self.ping = ping
+
+class Stats():
+    def __init__(self, cid):
+        self.player = Player(cid)
 
 class CaScores(Scores):
     def __init__(self, scores):
-        self.player = Player(scores[0])
+        super().__init__(scores[0], scores[3], scores[4])
         self.team = minqlbot.TEAMS[scores[1]]
         self.premium = bool(scores[2])
-        self.score = scores[3]
-        self.ping = scores[4]
         self.time = scores[5]
         self.kills = scores[6]
         self.deaths = scores[7]
@@ -427,9 +433,9 @@ class CaScores(Scores):
         self.perfect = scores[15]
         self.alive = bool(scores[16])
 
-class CaEndScores(Scores):
+class CaEndStats(Stats):
     def __init__(self, id_, scores):
-        self.player = Player(id_)
+        super().__init__(id_)
         self.damage_done = scores[1]
         self.damage_received = scores[2]
         self._gaunt_accuracy = scores[3]
@@ -462,6 +468,36 @@ class CaEndScores(Scores):
         self.hmg_kills = scores[30]
         self._wpn15_accuracy = scores[31]
         self._wpn15_kills = scores[32]
+
+class RaceScores(Scores):
+    def __init__(self, scores):
+        super().__init__(scores[0], scores[2], scores[3])
+        self.team = self.player.team
+        self._unk = scores[1]
+        self.time = scores[4]
+
+    @property
+    def best_time(self):
+        """Return the best time as a string, like the QL scoreboard, rather than the raw integer scores_race uses."""
+        td = self.best_time_timedelta
+        if td == None:
+            return "-"
+
+        hours = td.seconds // 3600
+        if hours:
+            return "{:d}:{:d}:{:02d}.{:03d}".format(hours, (td.seconds // 60) % 60, td.seconds % 60, (td.microseconds // 1000) % 1000)
+        else:
+            return "{:d}:{:02d}.{:03d}".format((td.seconds // 60) % 60, td.seconds % 60, (td.microseconds // 1000) % 1000)
+
+    @property
+    def best_time_timedelta(self):
+        """Return the player's best time in the form of a timedelta instance."""
+        if self.score == -1: # -1 is when a player hasn't finished a lap.
+            return None
+
+        score_string = str(self.score)
+        return datetime.timedelta(seconds=int(score_string[:-3]), milliseconds=int(score_string[-3:]))
+    
 
 class Plugin():
     """The base plugin class.
@@ -1198,8 +1234,10 @@ setattr(minqlbot, "Player",  Player)
 setattr(minqlbot, "DummyPlayer", DummyPlayer)
 setattr(minqlbot, "Game",  Game)
 setattr(minqlbot, "Scores",  Scores)
+setattr(minqlbot, "Stats",  Stats)
 setattr(minqlbot, "CaScores",  CaScores)
-setattr(minqlbot, "CaEndScores",  CaEndScores)
+setattr(minqlbot, "CaEndStats",  CaEndStats)
+setattr(minqlbot, "RaceScores",  RaceScores)
 setattr(minqlbot, "Plugin",  Plugin)
 
 # ====================================================================
