@@ -933,6 +933,7 @@ def parse(cmdstr):
         return
     
     # game_end
+    # TODO: Proper handling of non-team game modes.
     res = re_game_end.match(cmdstr)
     if res:
         value = int(res.group("value"))
@@ -946,7 +947,7 @@ def parse(cmdstr):
                 event_handlers["vote_ended"].cancel() # Cancel current vote if any.
                 event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), minqlbot.TEAMS[2])
             else:
-                debug("game_end: Weird behaviour!")
+                event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), "draw")
             return
 
     # abort
