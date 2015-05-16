@@ -789,7 +789,7 @@ re_voted = re.compile(r'^cs (?P<code>10|11) "(?P<count>.*)"')
 re_vote_ended = re.compile(r'^print "Vote (?P<result>passed|failed).')
 re_player_change = re.compile(r'^cs 5(?P<id>[2-5][0-9]) "(?P<cvars>.*)"')
 re_scores_ca = re.compile(r'^scores_ca (?P<total_players>.+?) (?P<red_score>.+?) (?P<blue_score>.+?) (?P<scores>.+)')
-re_castats = re.compile(r'^castats (?P<scores>.+)')
+re_castats = re.compile(r'^castats (?P<stats>.+)')
 re_scores_race = re.compile(r'^scores_race (?P<total_players>.+?) (?P<scores>.+)')
 
 # bcs0 is a special case, as it's a configstring that's too big, so it's split into several parts.
@@ -1050,10 +1050,10 @@ def parse(cmdstr):
     res = re_castats.match(cmdstr)
     if res:
         global castats_buffer, castats_order
-        raw_scores = [int(i) for i in res.group("scores").split()]
+        raw_stats = [int(i) for i in res.group("stats").split()]
         cid = castats_order[0]
         del castats_order[0]
-        castats_buffer.append(minqlbot.CaEndScores(cid, raw_scores))
+        castats_buffer.append(minqlbot.CaEndStats(cid, raw_stats))
 
         if not len(castats_order): # Are we ready to trigger?
             tmp = castats_buffer
@@ -1222,5 +1222,3 @@ if __name__ == "__main__":
     sys.path.append(os.getcwd() + "\\python")
     load_config()
     load_preset_plugins()
-
-
