@@ -773,23 +773,24 @@ setattr(minqlbot, "EVENT_HANDLERS", event_handlers)
 re_chat = re.compile(r'"(?P<id>..) (?:(?P<clan>[^ \x19]+?) )?(?P<name>[^\x19]+?)..\x19: ..(?P<msg>.+)"')
 re_tchat = re.compile(r'"(?P<id>..) \x19\((?:(?P<clan>[^ ]+?) )?(?P<name>.+?)..\x19\)(?: \(.+?\))?\x19: ..(?P<msg>.+)"')
 re_tell = re.compile(r'"(?P<id>..) \x19\[(?:(?P<clan>[^ ]+?) )?(?P<name>.+?)\^7\x19\](?: \(.+?\))?\x19: ..(?P<msg>.+)"')
-re_connect = re.compile(r'print "(?P<name>.+) connected')
-re_disconnect = re.compile(r'print "(?P<name>.+) disconnected')
-re_round_start = re.compile(r'cs 661 "(?P<cvars>.+)"')
-re_round_end = re.compile(r'cs (?P<team>6|7) "(?P<score>.+)"')
-re_game_change = re.compile(r'cs 0 "(?P<cvars>.*)"')
-re_game_end = re.compile(r'cs 14 "(?P<value>.+)"')
-re_kick = re.compile(r'print "(?P<name>.+) was kicked')
-re_ragequit = re.compile(r'print "(?P<name>.+) \^1rage\^7quits')
-re_timeout = re.compile(r'print "(?P<name>.+) timed out')
-re_vote_called = re.compile(r'print "(?P<name>.+) called a vote.')
-re_vote_called_ex = re.compile(r'cs 9 "(?P<vote>.+) "*(?P<args>.*?)"*"')
-re_voted = re.compile(r'cs (?P<code>10|11) "(?P<count>.*)"')
-re_vote_ended = re.compile(r'print "Vote (?P<result>passed|failed).')
-re_player_change = re.compile(r'cs 5(?P<id>[2-5][0-9]) "(?P<cvars>.*)"')
-re_scores_ca = re.compile(r'scores_ca (?P<total_players>.+?) (?P<red_score>.+?) (?P<blue_score>.+?) (?P<scores>.+)')
-re_castats = re.compile(r'castats (?P<scores>.+)')
-re_scores_race = re.compile(r'scores_race (?P<total_players>.+?) (?P<scores>.+)')
+re_connect = re.compile(r'^print "(?P<name>.+) connected')
+re_disconnect = re.compile(r'^print "(?P<name>.+) disconnected')
+re_round_start = re.compile(r'^cs 661 "(?P<cvars>.+)"')
+re_round_end = re.compile(r'^cs (?P<team>6|7) "(?P<score>.+)"')
+re_game_change = re.compile(r'^cs 0 "(?P<cvars>.*)"')
+re_game_end = re.compile(r'^cs 14 "(?P<value>.+)"')
+re_abort = re.compile(r'^pcp .+? has aborted the match"')
+re_kick = re.compile(r'^print "(?P<name>.+) was kicked')
+re_ragequit = re.compile(r'^print "(?P<name>.+) \^1rage\^7quits')
+re_timeout = re.compile(r'^print "(?P<name>.+) timed out')
+re_vote_called = re.compile(r'^print "(?P<name>.+) called a vote.')
+re_vote_called_ex = re.compile(r'^cs 9 "(?P<vote>.+) "*(?P<args>.*?)"*"')
+re_voted = re.compile(r'^cs (?P<code>10|11) "(?P<count>.*)"')
+re_vote_ended = re.compile(r'^print "Vote (?P<result>passed|failed).')
+re_player_change = re.compile(r'^cs 5(?P<id>[2-5][0-9]) "(?P<cvars>.*)"')
+re_scores_ca = re.compile(r'^scores_ca (?P<total_players>.+?) (?P<red_score>.+?) (?P<blue_score>.+?) (?P<scores>.+)')
+re_castats = re.compile(r'^castats (?P<scores>.+)')
+re_scores_race = re.compile(r'^scores_race (?P<total_players>.+?) (?P<scores>.+)')
 
 # bcs0 is a special case, as it's a configstring that's too big, so it's split into several parts.
 # bcs0 indicates we start an incomplete configstring, bcs1 means we add it to the
@@ -947,6 +948,14 @@ def parse(cmdstr):
             else:
                 debug("game_end: Weird behaviour!")
             return
+
+    # abort
+    res = re_abort.match(cmdstr)
+    if res:
+        red_score = int(minqlbot.get_configstring(6, cached=False))
+        blue_score = int(minqlbot.get_configstring(7, cached=False))
+        event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), "abort")
+        return
     
     # kick
     res = re_kick.match(cmdstr)
