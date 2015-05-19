@@ -23,6 +23,8 @@ along with minqlbot. If not, see <http://www.gnu.org/licenses/>.
 #define STRUCT_OFFSET_PSERVERCOMMANDS   0xF7
 #define STRUCT_OFFSET_PCLIENTSTATIC     0x2
 #define STRUCT_OFFSET_PCONFIGSTRINGS    0x23
+#define STRUCT_OFFSET_PPSMALLZONE        0x1B
+#define STRUCT_OFFSET_PSMALLZONETOTAL    0x9
 #define OFFDIFF_CLC_SERVERCMDS   0x10014 // &servercmds - &clc
 
 #define MAX_RELIABLE_COMMANDS   64
@@ -68,7 +70,7 @@ typedef char * (__cdecl * GetArgs)();
 typedef void (__cdecl * ConsolePrint)(const char * msg);
 typedef cvar_t * (__cdecl * CvarFind)(const char * var_name);
 typedef void (__cdecl * ExecuteString)(const char * msg);
-
+typedef void (__cdecl * ZFree)(void * ptr);
 
 // Original function pointers.
 extern ParseServerMessage OParseServerMessage;
@@ -82,6 +84,7 @@ extern GetArgs OGetArgs;
 extern ConsolePrint OConsolePrint;
 extern CvarFind OCvarFind;
 extern ExecuteString OExecuteString;
+extern ZFree OZFree;
 
 DWORD WINAPI MainThread(HMODULE hModule);
 void CleanUp();
@@ -100,6 +103,7 @@ void __cdecl HandleHelp(const std::vector<std::string> &args);
 void __cdecl HandleRestart(const std::vector<std::string> &args);
 void __cdecl HandlePythonCommand(const std::vector<std::string> &args);
 void __cdecl HandleExit(const std::vector<std::string> &args);
+void __cdecl HandleMemleakFix(const std::vector<std::string> &args);
 void __cdecl HandleUnknown(const std::vector<std::string> &args);
 
 
@@ -115,6 +119,7 @@ char * __cdecl HReadBigString(void * msg);
 int __cdecl HReadShort(void * msg);
 void __cdecl HAddReliableCommand(const char * cmd);
 void __cdecl HConsolePrint(const char * msg);
+void __cdecl HZFree(void * ptr);
 
 // Wrappers.
 const char * CvarFindWrapper(const char * var_name);
@@ -125,6 +130,7 @@ void AddQueuedCommand(const std::string &cmd);
 UINT32 GetConnectionStatus();
 const char * GetConfigstring(UINT32 i);
 boost::python::dict GetConfigstringRange(UINT32 i, UINT32 j);
+void * InitNewSmallZoneMemory(size_t new_size);
 
 
 } // Namespace quake

@@ -38,6 +38,20 @@ typedef struct cvar_s {
   struct cvar_s *hashNext;
 } cvar_t;
 
+typedef struct memblock_s {
+  int		  size;           // including the header and possibly tiny fragments
+  int     tag;            // a tag of 0 is a free block
+  struct memblock_s       *next, *prev;
+  int     id;        		  // should be ZONEID
+} memblock_t;
+
+typedef struct {
+  int		size;			// total bytes malloced, including header
+  int		used;			// total bytes used
+  memblock_t	blocklist;	// start / end cap for linked list
+  memblock_t	*rover;
+} memzone_t;
+
 typedef enum {
   NA_BOT,
   NA_BAD, // an address lookup failed

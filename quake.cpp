@@ -34,60 +34,65 @@ along with minqlbot. If not, see <http://www.gnu.org/licenses/>.
 const unsigned int LOOPS_BEFORE_SEND = (int)DELAY_SEND_COMMAND / DELAY_MAIN_LOOP;
 
 // Patterns, masks and offsets for our function finder.
-const char PATTERN_PARSESERVERMESSAGE[] = "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x8B\x40\x2C\x56\x57\x8B\x7D\x08\x83\xF8\x01\x75\x13";
-const char MASK_PARSESERVERMESSAGE[]    = "XXXX----XXXXXXXXXXXXX";
-const int OFFSET_PARSESERVERMESSAGE     = 0x0;
+const char PATTERN_PARSESERVERMESSAGE[]   = "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x8B\x40\x2C\x56\x57\x8B\x7D\x08\x83\xF8\x01\x75\x13";
+const char MASK_PARSESERVERMESSAGE[]      = "XXXX----XXXXXXXXXXXXX";
+const int OFFSET_PARSESERVERMESSAGE       = 0x0;
 
-const char PATTERN_PARSECOMMANDSTRING[] = "\x55\x8B\xEC\x56\x8B\x75\x08\x6A\x20\x56\xE8\x00\x00\x00\x00\x8B\x4E\x14\x83\xC4\x08\x3B\x4E\x10";
-const char MASK_PARSECOMMANDSTRING[]    = "XXXXXXXXXXX----XXXXXXXXX";
-const int OFFSET_PARSECOMMANDSTRING     = 0x0;
+const char PATTERN_PARSECOMMANDSTRING[]   = "\x55\x8B\xEC\x56\x8B\x75\x08\x6A\x20\x56\xE8\x00\x00\x00\x00\x8B\x4E\x14\x83\xC4\x08\x3B\x4E\x10";
+const char MASK_PARSECOMMANDSTRING[]      = "XXXXXXXXXXX----XXXXXXXXX";
+const int OFFSET_PARSECOMMANDSTRING       = 0x0;
 
-const char PATTERN_PARSEGAMESTATE[]     = "\x55\x8B\xEC\x81\xEC\x68\x01\x00\x00\xA1\x00\x00\x00\x00\x33\xC5\x89\x45\xFC\x57\x8B\x7D\x08";
-const char MASK_PARSEGAMESTATE[]        = "XXXXXXXXXX----XXXXXXXXX";
-const int OFFSET_PARSEGAMESTATE         = 0x0;
+const char PATTERN_PARSEGAMESTATE[]       = "\x55\x8B\xEC\x81\xEC\x68\x01\x00\x00\xA1\x00\x00\x00\x00\x33\xC5\x89\x45\xFC\x57\x8B\x7D\x08";
+const char MASK_PARSEGAMESTATE[]          = "XXXXXXXXXX----XXXXXXXXX";
+const int OFFSET_PARSEGAMESTATE           = 0x0;
 
-const char PATTERN_READBIGSTRING[]      = "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x08\x33\xDB\x33\xF6\x8D\x49\x00\x6A\x08\x57\xE8\x00\x00\x00\x00\x8B\x4F\x14\x83\xC4\x08\x0F\xB6\xC0\x3B\x4F\x10\x7E\x03\x83\xC8\xFF\x83\xF8\xFF\x74\x1D\x3B\xC3\x74\x19\x83\xF8\x25\x75\x05\xB8\x2E\x00\x00\x00";
-const char MASK_READBIGSTRING[]         = "XXXXXXXXXXXXXXXXXXXX----XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-const int OFFSET_READBIGSTRING          = 0x0;
+const char PATTERN_READBIGSTRING[]        = "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x08\x33\xDB\x33\xF6\x8D\x49\x00\x6A\x08\x57\xE8\x00\x00\x00\x00\x8B\x4F\x14\x83\xC4\x08\x0F\xB6\xC0\x3B\x4F\x10\x7E\x03\x83\xC8\xFF\x83\xF8\xFF\x74\x1D\x3B\xC3\x74\x19\x83\xF8\x25\x75\x05\xB8\x2E\x00\x00\x00";
+const char MASK_READBIGSTRING[]           = "XXXXXXXXXXXXXXXXXXXX----XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+const int OFFSET_READBIGSTRING            = 0x0;
 
-const char PATTERN_READSHORT[]          = "\x55\x8B\xEC\x56\x8B\x75\x08\x6A\x10\x56\xE8\x00\x00\x00\x00\x8B\x4E\x14\x83\xC4\x08\x3B\x4E\x10\x98\x5E\x7E\x03\x83\xC8\xFF";
-const char MASK_READSHORT[]             = "XXXXXXXXXXX----XXXXXXXXXXXXXXXX";
-const int OFFSET_READSHORT              = 0x0;
+const char PATTERN_READSHORT[]            = "\x55\x8B\xEC\x56\x8B\x75\x08\x6A\x10\x56\xE8\x00\x00\x00\x00\x8B\x4E\x14\x83\xC4\x08\x3B\x4E\x10\x98\x5E\x7E\x03\x83\xC8\xFF";
+const char MASK_READSHORT[]               = "XXXXXXXXXXX----XXXXXXXXXXXXXXXX";
+const int OFFSET_READSHORT                = 0x0;
 
-const char PATTERN_ADDRELIABLECOMMAND[] = "\x8B\x55\x08\x40\xA3\x00\x00\x00\x00\x83\xE0\x3F\x68\x00\x04\x00\x00\xC1\xE0\x0A\x52\x05";
-const char MASK_ADDRELIABLECOMMAND[]    = "XXXXX----XXXXXXXXXXXXX";
-const int OFFSET_ADDRELIABLECOMMAND     = -0x29;
+const char PATTERN_ADDRELIABLECOMMAND[]   = "\x8B\x55\x08\x40\xA3\x00\x00\x00\x00\x83\xE0\x3F\x68\x00\x04\x00\x00\xC1\xE0\x0A\x52\x05";
+const char MASK_ADDRELIABLECOMMAND[]      = "XXXXX----XXXXXXXXXXXXX";
+const int OFFSET_ADDRELIABLECOMMAND       = -0x29;
 
-const char PATTERN_ADDCOMMAND[]         = "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x56\x57\x8B\x7D\x08\x8B\xF0\x85\xC0\x74\x34\x8B\x4E\x04\x8B\xC7";
-const char MASK_ADDCOMMAND[]            = "XXXX----XXXXXXXXXXXXXXXX";
-const int OFFSET_ADDCOMMAND             = 0x0;
+const char PATTERN_ADDCOMMAND[]           = "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x56\x57\x8B\x7D\x08\x8B\xF0\x85\xC0\x74\x34\x8B\x4E\x04\x8B\xC7";
+const char MASK_ADDCOMMAND[]              = "XXXX----XXXXXXXXXXXXXXXX";
+const int OFFSET_ADDCOMMAND               = 0x0;
 
-const char PATTERN_REMOVECOMMAND[]      = "\x55\x8B\xEC\x56\x8B\x35\x00\x00\x00\x00\x57\xBF\x00\x00\x00\x00\x85\xF6\x74\x60\x53\x8B\x5D\x08";
-const char MASK_REMOVECOMMAND[]         = "XXXXXX----XX----XXXXXXXX";
-const int OFFSET_REMOVECOMMAND          = 0x0;
+const char PATTERN_REMOVECOMMAND[]        = "\x55\x8B\xEC\x56\x8B\x35\x00\x00\x00\x00\x57\xBF\x00\x00\x00\x00\x85\xF6\x74\x60\x53\x8B\x5D\x08";
+const char MASK_REMOVECOMMAND[]           = "XXXXXX----XX----XXXXXXXX";
+const int OFFSET_REMOVECOMMAND            = 0x0;
 
-const char PATTERN_ARGS[]               = "\x53\xBB\x01\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x39\x1D\x00\x00\x00\x00\x7E\x6E\x56\x57\xEB\x07";
-const char MASK_ARGS[]                  = "XXXXXXXX----XXX----XXXXXX";
-const int OFFSET_ARGS                   = 0x0;
+const char PATTERN_ARGS[]                 = "\x53\xBB\x01\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x39\x1D\x00\x00\x00\x00\x7E\x6E\x56\x57\xEB\x07";
+const char MASK_ARGS[]                    = "XXXXXXXX----XXX----XXXXXX";
+const int OFFSET_ARGS                     = 0x0;
 
-const char PATTERN_CONSOLEPRINT[]       = "\x55\x8B\xEC\x83\xEC\x54\xA1\x00\x00\x00\x00\x33\xC5\x89\x45\xFC\x53\x57\x8B\x7D\x08\x6A\x0C\x68";
-const char MASK_CONSOLEPRINT[]          = "XXXXXXX----XXXXXXXXXXXXX";
-const int OFFSET_CONSOLEPRINT           = 0x0;
+const char PATTERN_CONSOLEPRINT[]         = "\x55\x8B\xEC\x83\xEC\x54\xA1\x00\x00\x00\x00\x33\xC5\x89\x45\xFC\x53\x57\x8B\x7D\x08\x6A\x0C\x68";
+const char MASK_CONSOLEPRINT[]            = "XXXXXXX----XXXXXXXXXXXXX";
+const int OFFSET_CONSOLEPRINT             = 0x0;
 
-const char PATTERN_CONFIGSTRINGS[]      = "\x83\x3D\x00\x00\x00\x00\x08\x74\x0E\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x04\xC3\x56\x33\xF6\x8D\x9B\x00\x00\x00\x00";
-const char MASK_CONFIGSTRINGS[]         = "XX----XXXX----X----XXXXXXXXXXXXX";
-const int OFFSET_CONFIGSTRINGS          = 0x0;
+const char PATTERN_CONFIGSTRINGS[]        = "\x83\x3D\x00\x00\x00\x00\x08\x74\x0E\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x04\xC3\x56\x33\xF6\x8D\x9B\x00\x00\x00\x00";
+const char MASK_CONFIGSTRINGS[]           = "XX----XXXX----X----XXXXXXXXXXXXX";
+const int OFFSET_CONFIGSTRINGS            = 0x0;
 
-const char PATTERN_CVARFINDVAR[]        = "\x55\x8B\xEC\x56\x57\x8B\x7D\x08\x8B\xC7\xE8\x00\x00\x00\x00\x8B\x34\x85\x00\x00\x00\x00\x85\xF6\x74\x1D";
-const char MASK_CVARFINDVAR[]           = "XXXXXXXXXXX----XXX----XXXX";
-const int OFFSET_CVARFINDVAR            = 0x0;
+const char PATTERN_CVARFINDVAR[]          = "\x55\x8B\xEC\x56\x57\x8B\x7D\x08\x8B\xC7\xE8\x00\x00\x00\x00\x8B\x34\x85\x00\x00\x00\x00\x85\xF6\x74\x1D";
+const char MASK_CVARFINDVAR[]             = "XXXXXXXXXXX----XXX----XXXX";
+const int OFFSET_CVARFINDVAR              = 0x0;
 
-const char PATTERN_EXECUTESTRING[]      = "\x55\x8B\xEC\x53\x8B\x5D\x08\x53\xE8\x00\x00\x00\x00\x83\xC4\x04\x83\x3D\x00\x00\x00\x00\x00\x0F";
-const char MASK_EXECUTESTRING[]         = "XXXXXXXXX----XXXXX----XX";
-const int OFFSET_EXECUTESTRING          = 0x0;
+const char PATTERN_EXECUTESTRING[]        = "\x55\x8B\xEC\x53\x8B\x5D\x08\x53\xE8\x00\x00\x00\x00\x83\xC4\x04\x83\x3D\x00\x00\x00\x00\x00\x0F";
+const char MASK_EXECUTESTRING[]           = "XXXXXXXXX----XXXXX----XX";
+const int OFFSET_EXECUTESTRING            = 0x0;
 
+const char PATTERN_INITSMALLZONEMEMORY[]  = "\x6A\x01\x68\x00\x00\x08\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x08\x00\xFF\x15\x00\x00\x00\x00\x83\xC4\x08\xA3";
+const char MASK_INITSMALLZONEMEMORY[]     = "XXXXXXXXX----XXXXXX----XXXX";
+const int OFFSET_INITSMALLZONEMEMORY      = 0x0;
 
-
+const char PATTERN_ZFREE[]                = "\x55\x8B\xEC\x53\x8B\x5D\x08\x56\x57\x85\xDB\x75\x0F\x68\x00\x00\x00\x00\x6A\x01\xE8";
+const char MASK_ZFREE[]                   = "XXXXXXXXXXXXXX----XXX";
+const int OFFSET_ZFREE                    = 0x0;
 
 namespace quake {
 clientConnection_t * clc;
@@ -97,6 +102,12 @@ UINT32 * configstrings;
 // so we simply assign it the address of the struct. At least until we
 // need the client static struct for something else later.
 UINT32 * connection_status;
+
+// Memory leak "fix" stuff.
+memzone_t ** smallzone;
+memzone_t * old_smallzone = NULL;
+unsigned int new_old_offset; // new_zone - old_zone
+int * smallzonetotal;
 
 void * parseservermessage_addr;
 void * parsecommandstring_addr;
@@ -111,6 +122,8 @@ void * consoleprints_addr;
 void * configstrings_addr;
 void * cvarfind_addr;
 void * executestring_addr;
+void * initsmallzonememory_addr;
+void * zfree_addr;
 ParseServerMessage OParseServerMessage;
 ParseCommandString OParseCommandString;
 ParseGamestate OParseGamestate;
@@ -123,6 +136,7 @@ GetArgs OGetArgs;
 ConsolePrint OConsolePrint;
 CvarFind OCvarFind;
 ExecuteString OExecuteString;
+ZFree OZFree;
 
 bool hooked = false;
 int lastSeq; // The sequence of the last acknowledged server command.
@@ -221,6 +235,8 @@ bool Initialize() {
   clc = (clientConnection_t *)((int)server_cmds - OFFDIFF_CLC_SERVERCMDS);
   connection_status = *((UINT32 **)((int)configstrings_addr + STRUCT_OFFSET_PCLIENTSTATIC));
   configstrings = *((UINT32 **)((int)configstrings_addr + STRUCT_OFFSET_PCONFIGSTRINGS));
+  smallzone = *((memzone_t ***)((int)initsmallzonememory_addr + STRUCT_OFFSET_PPSMALLZONE));
+  smallzonetotal = *((int **)((int)initsmallzonememory_addr + STRUCT_OFFSET_PSMALLZONETOTAL));
   lastSeq = clc->serverCommandSequence;
 
   if (!hooked) { // Might have to recall this function after hooking.
@@ -356,6 +372,22 @@ bool FindFunctions() {
   }
   else DOUT << "ExecuteString: base + " << (void *)((DWORD)executestring_addr - (DWORD)qlbase) << std::endl;
 
+  initsmallzonememory_addr =
+    (void *)(hook_utils::FindPattern(qlbase, qlsize, PATTERN_INITSMALLZONEMEMORY, MASK_INITSMALLZONEMEMORY) + OFFSET_INITSMALLZONEMEMORY);
+  if (!initsmallzonememory_addr) {
+    DERR << "Failed to find Com_InitSmallZoneMemory." << std::endl;
+    failed = true;
+  }
+  else DOUT << "Com_InitSmallZoneMemory: base + " << (void *)((DWORD)initsmallzonememory_addr - (DWORD)qlbase) << std::endl;
+
+  zfree_addr =
+    (void *)(hook_utils::FindPattern(qlbase, qlsize, PATTERN_ZFREE, MASK_ZFREE) + OFFSET_ZFREE);
+  if (!zfree_addr) {
+    DERR << "Failed to find Z_Free." << std::endl;
+    failed = true;
+  }
+  else DOUT << "Z_Free: base + " << (void *)((DWORD)zfree_addr - (DWORD)qlbase) << std::endl;
+
   if (failed) return false;
 
   return true;
@@ -442,7 +474,9 @@ bool HookAll() {
     MH_CreateHook(consoleprints_addr, &HConsolePrint,
     reinterpret_cast<void **>(&OConsolePrint)) != MH_OK ||
     MH_CreateHook(addreliablecommand_addr, &HAddReliableCommand,
-    reinterpret_cast<void **>(&OAddReliableCommand)) != MH_OK) {
+    reinterpret_cast<void **>(&OAddReliableCommand)) != MH_OK ||
+    MH_CreateHook(zfree_addr, &HZFree,
+    reinterpret_cast<void **>(&OZFree)) != MH_OK) {
     DERR << "MinHook hooking failed." << std::endl;
     return false;
   }
@@ -472,6 +506,10 @@ bool HookAll() {
     DERR << "MinHook failed to enable hook for AddReliableCommand." << std::endl;
     return false;
   }
+  else if (MH_EnableHook(zfree_addr) != MH_OK) {
+    DERR << "MinHook failed to enable hook for ZFree." << std::endl;
+    return false;
+  }
 
   return true;
 }
@@ -499,10 +537,14 @@ void AddConsoleInterface() {
   std::tuple<std::string, std::string, GenericHandler>
 		restart("restart", "Restarts the Python interpreter.", &HandleRestart);
 	commands.push_back(restart);
-	// exec
+	// py
   std::tuple<std::string, std::string, GenericHandler>
 		exec("py", "Sends a command to the plugins.", &HandlePythonCommand);
 	commands.push_back(exec);
+  // memleakfix
+  std::tuple<std::string, std::string, GenericHandler>
+    memleakfix("memleakfix", "Uses 50MB more memory to delay .", &HandleMemleakFix);
+  commands.push_back(memleakfix);
 	// exit
   std::tuple<std::string, std::string, GenericHandler>
 		exit("exit", "Makes the bot clean up and exit safely.", &HandleExit);
@@ -593,6 +635,29 @@ void HandlePythonCommand(const std::vector<std::string> &args) {
     std::string err = python::get_error_traceback();
     python::output_debug_lines(err);
   }
+}
+
+void HandleMemleakFix(const std::vector<std::string> &args) {
+  // If old_smallzone has been set, we've already done this once.
+  if (old_smallzone != NULL) {
+    OConsolePrint("^7The fix can only be applied once.\n");
+    return;
+  }
+
+  // Allocate 50 MB to new small zone then replace the old pointer.
+  DOUT << "Old smallzone: " << (void *)*smallzone << " - Size: " << float((*smallzone)->size) / (1024 * 1024) << " MB" << std::endl;
+  size_t new_size = 512 * 1024 * 100;
+    memzone_t * new_zone = (memzone_t *)InitNewSmallZoneMemory(new_size);
+  if (new_zone == NULL) {
+    OConsolePrint("^7Failed to allocate 50 MB!\n");
+    return;
+  }
+
+  old_smallzone = *smallzone;
+  *smallzone = new_zone;
+  *smallzonetotal = new_size;
+  OConsolePrint("^7Success!\n");
+  DOUT << "New smallzone: " << (void *)*smallzone << " - Size: " << float((*smallzone)->size) / (1024 * 1024) << " MB" << std::endl;
 }
 
 void HandleExit(const std::vector<std::string> &args) {
@@ -739,6 +804,17 @@ void HConsolePrint(const char * msg) {
   OConsolePrint(msg);
 }
 
+void HZFree(void * ptr) {
+  // If we've replaced the smallzone with a new one, we want to redirect
+  // calls to Z_Free for allocations on the old smallzone, otherwise the
+  // new smallzone's rover will end up being set to the old smallzone,
+  // making all subsequent allocation calls to happen on the old one.
+  if (old_smallzone && (UINT32)ptr > (UINT32)old_smallzone && (UINT32)ptr < (UINT32)old_smallzone + old_smallzone->size) {
+    OZFree((void *)((UINT32)ptr + new_old_offset));
+  }
+  else OZFree(ptr);
+}
+
 ////////////////////////////////////////
 //  WRAPPER FUNCTIONS
 
@@ -814,6 +890,44 @@ python::dict GetConfigstringRange(UINT32 i, UINT32 j) {
   }
 
   return res;
+}
+
+// Allocate memory for a new and larger small zone, copy the old into it, then replace
+// the global pointer that QL uses with the new one. Finally it fixes all its old pointers
+// so that they point to the new copied structure. Returns the address of the new zone,
+// or NULL if the allocation failed.
+void * InitNewSmallZoneMemory(size_t new_size) {
+  memzone_t * old_zone = *smallzone;
+  memzone_t * new_zone = (memzone_t *)calloc(new_size, 1);
+
+  if (new_size == NULL) return NULL;
+
+  memcpy(new_zone, old_zone, old_zone->size);
+  // Update new size.
+  new_zone->size = new_size;
+
+  // Update pointers. First off, calculate the offset between new and old zones.
+  new_old_offset = (unsigned int)new_zone - (unsigned int)old_zone;
+  // The zone has just one pointer, the rover.
+  new_zone->rover = (memblock_t *)((unsigned int)new_zone->rover + new_old_offset);
+  // Rover's size also need to be increased.
+  int used_space = old_zone->size - new_zone->rover->size;
+  new_zone->rover->size = new_size - used_space;
+  // Block list is a block itself, so we got two pointers.
+  new_zone->blocklist.next = (memblock_t *)((unsigned int)new_zone->blocklist.next + new_old_offset);
+  new_zone->blocklist.prev = (memblock_t *)((unsigned int)new_zone->blocklist.prev + new_old_offset);
+
+  for (memblock_t * block = new_zone->blocklist.next;; block = block->next) {
+    // Blocks have a doubly linked list, so we traverse and update the pointers.
+    block->next = (memblock_t *)((unsigned int)block->next + new_old_offset);
+    block->prev = (memblock_t *)((unsigned int)block->prev + new_old_offset);
+
+    if (block->next == &new_zone->blocklist) {
+      break;			// all blocks have been hit	
+    }
+  }
+
+  return new_zone;
 }
 
 }; // namespace quake
