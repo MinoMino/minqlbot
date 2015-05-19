@@ -543,7 +543,7 @@ void AddConsoleInterface() {
 	commands.push_back(exec);
   // memleakfix
   std::tuple<std::string, std::string, GenericHandler>
-    memleakfix("memleakfix", "Uses 50MB more memory to delay .", &HandleMemleakFix);
+    memleakfix("memleakfix", "Use 50MB more memory to delay the crash by a factor of 100.", &HandleMemleakFix);
   commands.push_back(memleakfix);
 	// exit
   std::tuple<std::string, std::string, GenericHandler>
