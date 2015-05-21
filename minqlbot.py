@@ -710,10 +710,16 @@ class StatsEventHandler(EventHandler):
     def trigger(self, stats):
         super().trigger(stats)
 
-class EventHandlerManager:
-    """Holds all the event managers and provides a way to access them.
+class AbortEventHandler(EventHandler):
+    def __init__(self):
+        super().__init__("abort")
+    
+    def trigger(self):
+        super().trigger()
 
-    """
+class EventHandlerManager:
+    """Holds all the event managers and provides a way to access them."""
+    # TODO: Makes sense if parse was a method here.
     def __init__(self):
         self.__handlers = {}
 
@@ -762,6 +768,7 @@ event_handlers.add_handler("raw",               RawEventHandler())
 event_handlers.add_handler("gamestate",         GamestateEventHandler())
 event_handlers.add_handler("scores",            ScoresEventHandler())
 event_handlers.add_handler("stats",             StatsEventHandler())
+event_handlers.add_handler("abort",             AbortEventHandler())
 
 # Export event handler dictionary.
 setattr(minqlbot, "EVENT_HANDLERS", event_handlers)
@@ -779,7 +786,7 @@ re_round_start = re.compile(r'^cs 661 "(?P<cvars>.+)"')
 re_round_end = re.compile(r'^cs (?P<team>6|7) "(?P<score>.+)"')
 re_game_change = re.compile(r'^cs 0 "(?P<cvars>.*)"')
 re_game_end = re.compile(r'^cs 14 "(?P<value>.+)"')
-re_abort = re.compile(r'^pcp .+? has aborted the match"')
+re_abort = re.compile(r'^pcp "(?:(?P<clan>[^ ]+?) )?(?P<name>.+?) has aborted the match"')
 re_kick = re.compile(r'^print "(?P<name>.+) was kicked')
 re_ragequit = re.compile(r'^print "(?P<name>.+) \^1rage\^7quits')
 re_timeout = re.compile(r'^print "(?P<name>.+) timed out')
@@ -947,15 +954,14 @@ def parse(cmdstr):
                 event_handlers["vote_ended"].cancel() # Cancel current vote if any.
                 event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), minqlbot.TEAMS[2])
             else:
-                event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), "draw")
+                event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), None)
             return
 
     # abort
     res = re_abort.match(cmdstr)
     if res:
-        red_score = int(minqlbot.get_configstring(6, cached=False))
-        blue_score = int(minqlbot.get_configstring(7, cached=False))
-        event_handlers["game_end"].trigger(minqlbot.Game(), (red_score, blue_score), "abort")
+        #player = get_player(res.group("name"))
+        event_handlers["abort"].trigger()
         return
     
     # kick
