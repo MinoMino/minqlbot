@@ -750,10 +750,11 @@ const char * CvarFindWrapper(const char * var_name) {
 }
 
 void ExecuteStringWrapper(const char * cmd) {
-  std::vector<std::string> split_cmd = split(cmd, ';');
+  char cmdbuf[2048];
 
-  for (auto it = split_cmd.begin(); it != split_cmd.end(); it++)
-    OExecuteString((*it).c_str());
+  sprintf_s(cmdbuf, "alias __minqlbot \"%s\"", cmd);
+  OExecuteString(cmdbuf);
+  OExecuteString("__minqlbot");
 }
 
 ////////////////////////////////////////
