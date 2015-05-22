@@ -730,6 +730,10 @@ int HReadShort(void * msg) {
 }
 
 void HAddReliableCommand(const char * cmd) {
+  if (!strcmp(cmd, "disconnect")) {
+    OAddReliableCommand(cmd);
+    return;
+  }
   DOUT << "=> " << cmd << std::endl;
   AddQueuedCommand(cmd);
 }
