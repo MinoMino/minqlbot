@@ -132,7 +132,7 @@ class Player():
     
     @property
     def id(self):
-        if self.__valid:
+        if self.valid:
             return self.__id
         else:
             raise NonexistentPlayerError()
