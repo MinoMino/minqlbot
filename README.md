@@ -1,6 +1,8 @@
 minqlbot
 ========
 
+**NOTE: Development has been stalled because of the fact that the next big QL update will give us dedicated servers with a proper official API to administer servers. That means we'll be able to run servers and bots without having to have the overhead of a client. That said, I'm currently working on a new bot for said update, so hopefully I'll have a new bot ready for when the update hits.**
+
 An administration bot for Quake Live, extensible with plugins.
 
 This is the source of the DLL. When you compile this for release, it'll add the base of the Python
