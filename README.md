@@ -58,8 +58,6 @@ If you'd like to contribute with code, you can fork this or the plugin repositor
 
 If you found a bug, please open an issue here on Github.
 
-Donations would also be greatly appreciated. You can do so with [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=mino%40minomino%2eorg&lc=US&item_name=Mino&item_number=minqlbot&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) or with Bitcoins to `1MinoB3DxijyXSLgzA6JYGKmM3Jj6Gw2wW`.
-
 [redist_checkbox]:http://minomino.org/screenshots/2015-01-02_19-45-39.png
 [qlexe_path]:http://minomino.org/screenshots/2015-01-02_19-56-57.png
 [dbgview]:http://minomino.org/screenshots/2015-01-02_20-17-42.png
